@@ -8,3 +8,4 @@ scikit-image
 opencv-contrib-python
 opencv-python
 jupyter
+lalalalala
