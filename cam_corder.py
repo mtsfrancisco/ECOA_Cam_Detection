@@ -1,6 +1,7 @@
 import cv2
+import imutils
 import numpy as np
-
+from frame_processing import *
 
 # Global variables ---------------------------------------------------------
 
@@ -18,7 +19,8 @@ def get_video(video_path):
 
 
 # Main ----------------------------------------------------------------------
-capture = get_video()
+capture = get_video("../media/TestVideo.mp4")
+delay = createDelay(capture)
 while True:
     # Capturing image frame-by-frame
     ret, frame = capture.read()
@@ -27,13 +29,15 @@ while True:
         break
 
 
-        # Matheus Method // Yolo
 
-        # Cury Method
 
-        # Enzo Method // WaterShed/CountingContours
-        
+    frame = imutils.resize(frame, width=1200)
 
+    # Matheus Method // Yolo
+
+    # Cury Method
+
+    # Enzo Method // WaterShed/CountingContours
     
 
     # Breaking the loop if the key 'q' is pressed
