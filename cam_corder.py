@@ -1,6 +1,8 @@
 import cv2
 import imutils
 import numpy as np
+import argparse
+from matplotlib import pyplot as plt
 from frame_processing import *
 from video_processing.water_shed import * 
 
@@ -17,14 +19,19 @@ def get_video(video_path):
 
     return capture
 
+def create_delay(capture):
+    fps = capture.get(cv2.CAP_PROP_FPS)
+    slow_factor = 2  # Change this value to control the slow speed
+    delay = int(1000 / (fps / slow_factor))
+    return delay
 
 
 # Main ----------------------------------------------------------------------
-capture = get_video("./media/TestVideo.mp4")
-delay = create_delay(capture)
+cap = get_video("./media/TestVideo.mp4")
+delay = create_delay(cap)
 while True:
     # Capturing image frame-by-frame
-    ret, frame = capture.read()
+    ret, frame = cap.read()
     if not ret:
         print("Can't receive frame (stream end?). Exiting ...")
         break
@@ -39,13 +46,15 @@ while True:
     # Cury Method
 
     # Enzo Method // WaterShed/CountingContours
-    gamma_frame = adjust_gamma(frame)
-    thresh_frame = basic_threshold(gamma_frame)
-    water_shed_frame = water_shed_1(frame, thresh_frame)
+    thresh_frame = basic_threshold(frame, 0.5)
+    sharp_frame = create_sharp_frame(frame)
+    water_shed_frame = water_shed(frame, thresh_frame, sharp_frame)
+    boxed_frame = drawBoxes(frame.copy(), water_shed_frame)
+    cv2.imshow("Boxed", boxed_frame)
 
     # Breaking the loop if the key 'q' is pressed
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-capture.release()
+cap.release()
 cv2.destroyAllWindows()
