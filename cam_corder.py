@@ -20,7 +20,7 @@ def get_video(video_path):
 
 
 # Main ----------------------------------------------------------------------
-capture = get_video("../media/TestVideo.mp4")
+capture = get_video("./media/TestVideo.mp4")
 delay = create_delay(capture)
 while True:
     # Capturing image frame-by-frame
@@ -40,8 +40,8 @@ while True:
 
     # Enzo Method // WaterShed/CountingContours
     gamma_frame = adjust_gamma(frame)
-    thresh_frame = basic_threshold(frame)
-    water_shed_frame = water_shed_1(frame, gamma_frame)
+    thresh_frame = basic_threshold(gamma_frame)
+    water_shed_frame = water_shed_1(frame, thresh_frame)
 
     # Breaking the loop if the key 'q' is pressed
     if cv2.waitKey(1) & 0xFF == ord('q'):
