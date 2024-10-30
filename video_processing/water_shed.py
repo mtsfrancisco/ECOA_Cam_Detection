@@ -73,12 +73,12 @@ def water_shed(frame, opening, imgResult):
 
     return mark
 
-def drawBoxes(original_frame, threshed_frame):
+def drawBoxes(original_frame, threshed_frame, max_area):
     contours, _ = cv2.findContours(threshed_frame, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     for cnt in contours: 
         area = cv2.contourArea(cnt)
-        if area > 100:
+        if 100 < area < max_area:  # Draw boxes only for areas within the range
             x, y, w, h = cv2.boundingRect(cnt)
-            cv2.rectangle(original_frame, (x,y), (x + w, y+ h), (0, 255, 0), 3)
+            cv2.rectangle(original_frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
 
     return original_frame
