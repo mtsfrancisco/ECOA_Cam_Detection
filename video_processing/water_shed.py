@@ -26,8 +26,9 @@ def water_shed(frame, opening, imgResult):
     kernel = np.ones((5,5),np.uint8)
     sure_bg = cv2.dilate(opening,kernel,iterations=3)
  
+    cv2.imshow("opening", opening)
     # Finding sure foreground area
-    dist = cv2.distanceTransform(opening, cv2.DIST_L2, 3)
+    dist = cv2.distanceTransform(opening, cv2.DIST_L2, 5)
     cv2.normalize(dist, dist, 0, 1.0, cv2.NORM_MINMAX)
     #cv2.imshow('Distance Transform Image', dist)
 
@@ -37,10 +38,10 @@ def water_shed(frame, opening, imgResult):
     # Step to focus on
     _, dist = cv2.threshold(dist, 0.3, 1.0, cv2.THRESH_BINARY)
     dist = cv2.dilate(dist, kernel)
-    #cv2.imshow('Peaks', dist)
+    cv2.imshow('Peaks', dist)
     # Opening to remove a LOT of noise
-    eroded = cv2.erode(dist,kernel,iterations = 1)
-    opening = cv2.dilate(eroded,kernel,iterations = 1)
+    eroded = cv2.erode(dist,kernel,iterations = 3)
+    opening = cv2.dilate(eroded,kernel,iterations = 3)
 
 
     #cv2.imshow('Opening', opening)
