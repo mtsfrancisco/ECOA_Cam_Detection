@@ -28,7 +28,7 @@ def water_shed(frame, opening, imgResult):
  
     cv2.imshow("opening", opening)
     # Finding sure foreground area
-    dist = cv2.distanceTransform(opening, cv2.DIST_L2, 5)
+    dist = cv2.distanceTransform(opening, cv2.DIST_L2, 3)
     cv2.normalize(dist, dist, 0, 1.0, cv2.NORM_MINMAX)
     #cv2.imshow('Distance Transform Image', dist)
 
@@ -38,10 +38,10 @@ def water_shed(frame, opening, imgResult):
     # Step to focus on
     _, dist = cv2.threshold(dist, 0.3, 1.0, cv2.THRESH_BINARY)
     dist = cv2.dilate(dist, kernel)
-    cv2.imshow('Peaks', dist)
     # Opening to remove a LOT of noise
-    eroded = cv2.erode(dist,kernel,iterations = 3)
-    opening = cv2.dilate(eroded,kernel,iterations = 3)
+    eroded = cv2.erode(dist,kernel,iterations = 1)
+    opening = cv2.dilate(eroded,kernel,iterations = 1)
+    cv2.imshow('Peaks', opening)
 
 
     #cv2.imshow('Opening', opening)
@@ -78,7 +78,7 @@ def drawBoxes(original_frame, threshed_frame, max_area):
     contours, _ = cv2.findContours(threshed_frame, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     for cnt in contours: 
         area = cv2.contourArea(cnt)
-        if 100 < area < max_area:  # Draw boxes only for areas within the range
+        if 1000 < area < max_area:  # Draw boxes only for areas within the range
             x, y, w, h = cv2.boundingRect(cnt)
             cv2.rectangle(original_frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
 
