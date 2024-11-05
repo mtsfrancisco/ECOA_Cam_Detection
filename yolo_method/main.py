@@ -7,6 +7,7 @@ from ultralytics import YOLO
 from tracker import Tracker
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'utils')))
 
 from video_stream import VideoStream
 
@@ -33,6 +34,9 @@ area2 = [(0, 480), (1920, 480), (1920, 520), (0, 520)]
 
 # Inicialização do fluxo de vídeo (arquivo ou câmera)
 video_stream = VideoStream(video_path)
+
+#camera (0)
+#video_stream = VideoStream(0)
 
 # Inicialização do rastreador e contadores de entrada/saída
 tracker = Tracker()
