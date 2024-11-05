@@ -10,9 +10,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'utils')))
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Include path to the media folder
-video_path = os.path.join(current_dir, '..', 'media', 'TestVideo.mp4')
-
 from tracker import Tracker
 from video_stream import VideoStream
 
