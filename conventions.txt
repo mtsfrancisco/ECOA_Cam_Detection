@@ -1,0 +1,8 @@
+classe: CamelCase
+variables, functions and methods: snake_case
+Constants: UPPER_SNAKE_CASE
+
+
+Indent using 4 spaces (tabs).
+Limit lines to 79 characters.
+Use blank lines to separate classes and functions.
