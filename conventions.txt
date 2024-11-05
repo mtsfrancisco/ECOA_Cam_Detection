@@ -20,3 +20,6 @@ Git:
         what the individual had achieved that day
     - General commits should consist of what changes one 
         has made to individual folder/files
+        - Example:
+            My message for this consisted of "Updated conventions
+                to braoden specifics"
