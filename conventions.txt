@@ -2,24 +2,54 @@ Basics:
     - classe: CamelCase
     - variables, functions and methods: snake_case
     - Constants: UPPER_SNAKE_CASE
+    - Use Descriptive Names: Always prefer descriptive names over abbreviations, especially 
+        for functions and variables. For example, use customer_id instead of cust_id.
+    - Avoid Single-letter Variables: Except for counters or iterators (e.g., i, j), avoid 
+        single-letter variable names. They are hard to understand and maintain.
+    - Use self Explicitly in Instance Methods: Always include self as the first parameter in 
+        instance methods to ensure consistency.
+
+Structure and Organization:
+    - Organize Imports: Follow the PEP 8 import order:
+        - Standard library imports (e.g., import os)
+        - Related third-party imports (e.g., import numpy as np)
+        - Local application/library imports Separate each category with a blank line, 
+            and avoid unused imports.
+    - Avoid Hardcoding: Place values that may need modification (like file paths, URLs) in 
+        configuration files or constants. This keeps your code flexible and easier to update.
 
 Space within code:
     - Indent using 4 spaces (tabs).
     - (Tabbing should be the same as this file)
     - Limit lines to 79 characters.
     - Use blank lines to separate classes and functions.
+    - Method Definitions within Classes: Group similar methods together within classes 
+        (e.g., private helper methods in a section, public methods in another) and include a blank 
+        line between method definitions for readability.
+    - Avoid Excessive Blank Lines: Use blank lines judiciously—1 between methods or functions and 2 
+        between classes.
+    - Trailing Commas: Use trailing commas in multi-line structures (e.g., lists, dictionaries) to make 
+        adding items easier and reduce version control noise.
+
+Comments and Documentation:
+    - Attempt to avoid redundant comments:
+        - Ensure comments add value by explaining “why” rather than “what.” Avoid comments that simply restate 
+            the code (e.g., i += 1 # increment i by 1 is unnecessary).
+    - Module Docstrings: Add a docstring at the top of each module, explaining the module’s purpose and main classes 
+        or functions.
 
 Naming Files:
     - When consists of class use CamelCase
     - Any other situation use underline and lowercase
 
 Git:
-    - When using git it would be ideal to use seperate
-        branches and then use checkout to finish and switch
-    - When ending day commit message should summarize
-        what the individual had achieved that day
-    - General commits should consist of what changes one 
-        has made to individual folder/files
+    - When using git it would be ideal to use seperate branches and then use checkout to finish and 
+        switch
+    - Branch Naming: Use consistent, descriptive branch names, such as feature/add-login, fix/user-authentication, 
+        or hotfix/crash-on-startup.
+    - Should be using small, focused, and frequent commits
+    - When ending day commit message should summarize what the individual had achieved that day
+    - General commits should consist of what changes one  has made to individual folder/files
         - Example:
             My message for this consisted of "Updated conventions
                 to braoden specifics"
