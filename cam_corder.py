@@ -3,7 +3,7 @@ import imutils
 import numpy as np
 import argparse
 from matplotlib import pyplot as plt
-from frame_processing import *
+from utils.frame_processing import *
 from video_processing.water_shed import * 
 
 # Global variables ---------------------------------------------------------

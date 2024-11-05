@@ -1,8 +1,22 @@
-classe: CamelCase
-variables, functions and methods: snake_case
-Constants: UPPER_SNAKE_CASE
+Basics:
+    - classe: CamelCase
+    - variables, functions and methods: snake_case
+    - Constants: UPPER_SNAKE_CASE
 
+Space within code:
+    - Indent using 4 spaces (tabs).
+    - (Tabbing should be the same as this file)
+    - Limit lines to 79 characters.
+    - Use blank lines to separate classes and functions.
 
-Indent using 4 spaces (tabs).
-Limit lines to 79 characters.
-Use blank lines to separate classes and functions.
+Naming Files:
+    - When consists of class use CamelCase
+    - Any other situation use underline and lowercase
+
+Git:
+    - When using git it would be ideal to use seperate
+        branches and then use checkout to finish and switch
+    - When ending day commit message should summarize
+        what the individual had achieved that day
+    - General commits should consist of what changes one 
+        has made to individual folder/files
