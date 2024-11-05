@@ -49,7 +49,7 @@ while True:
     thresh_frame = basic_threshold(frame, 0.5)
     sharp_frame = create_sharp_frame(frame)
     water_shed_frame = water_shed(frame, thresh_frame, sharp_frame)
-    boxed_frame = drawBoxes(frame.copy(), water_shed_frame, 15000)
+    boxed_frame = draw_boxes(frame.copy(), water_shed_frame, 15000)
     cv2.imshow("Boxed", boxed_frame)
 
     # Breaking the loop if the key 'q' is pressed
