@@ -3,8 +3,8 @@ import cv2
 class VideoStream:
     def __init__(self, source=0):
         """
-        Inicializa o stream de vídeo.
-        :param source: caminho do arquivo de vídeo ou índice da câmera (padrão é 0 para a câmera padrão).
+        Initializes the video stream.
+        :param source: path to the video file or camera index (default is 0 for the default camera).
         """
         self.cap = cv2.VideoCapture(source)
         if not self.cap.isOpened():
@@ -14,8 +14,8 @@ class VideoStream:
     
     def read(self):
         """
-        Lê o próximo frame do vídeo ou da câmera.
-        :return: (ret, frame) onde ret é True se a leitura foi bem-sucedida e frame é a imagem lida.
+        Reads the next frame from the video or camera.
+        :return: (ret, frame) where ret is True if the reading was successful and frame is the read image.
         """
         ret, frame = self.cap.read()
         if not ret:
@@ -24,22 +24,22 @@ class VideoStream:
     
     def release(self):
         """
-        Libera o stream de vídeo/câmera.
+        Releases the video stream/camera.
         """
         self.cap.release()
         cv2.destroyAllWindows()
     
     def display(self, frame, window_name="Video Stream"):
         """
-        Exibe o frame em uma janela.
-        :param frame: frame a ser exibido.
-        :param window_name: nome da janela de exibição.
+        Displays the frame in a window.
+        :param frame: frame to be displayed.
+        :param window_name: name of the display window.
         """
         cv2.imshow(window_name, frame)
     
     def get_frame_dimensions(self):
         """
-        Obtém as dimensões do frame.
-        :return: (largura, altura)
+        Gets the dimensions of the frame.
+        :return: (width, height)
         """
         return self.width, self.height
