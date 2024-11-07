@@ -3,6 +3,7 @@ import os
 import cv2
 import pandas as pd
 import numpy as np
+import keyboard
 from ultralytics import YOLO
 from tracker import Tracker
 
@@ -114,6 +115,9 @@ while True:
     
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
+    if keyboard.is_pressed('q'):
+            print("Quitting program.")
+            break
 
 # Liberação dos recursos
 video_stream.release()
