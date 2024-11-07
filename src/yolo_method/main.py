@@ -1,3 +1,7 @@
+print("Script started.")
+print("Performing setup...")
+
+
 import sys
 import os
 import cv2
@@ -5,15 +9,15 @@ import pandas as pd
 import numpy as np
 import keyboard
 from ultralytics import YOLO
-from src.yolo_method.tracker import Tracker
+from tracker import Tracker
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'utils')))
 
-from src.utils.video_stream import VideoStream
+from utils.video_stream import VideoStream
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-video_path = os.path.join(current_dir, 'media', 'TestVideo.mp4')
+video_path = os.path.join(current_dir, '..', '..', 'media', 'TestVideo.mp4')
 
 # Print the video path to verify it
 print(f"\n\nVideo path\n\n: {video_path}\n\n")

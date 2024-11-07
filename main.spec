@@ -17,12 +17,29 @@ package_names = [pkg.split('==')[0].strip() for pkg in packages]
 # Define hidden imports
 hiddenimports = package_names
 
-# Your existing code
+media_path = os.path.join(base_path, 'media')
+src_path = os.path.join(base_path, 'src')
+req_file_path = os.path.join(base_path, 'req.txt')
+
+# Check if the directories exist
+if not os.path.exists(media_path):
+    raise FileNotFoundError(f"Media directory not found: {media_path}")
+if not os.path.exists(src_path):
+    raise FileNotFoundError(f"Source directory not found: {src_path}")
+if not os.path.exists(req_file_path):
+    raise FileNotFoundError(f"req.txt file not found: {req_file_path}")
+
+
 a = Analysis(
-    [os.path.join(base_path, 'yolo_method/main.py')],
+    [os.path.join(base_path, 'src/yolo_method/main.py')],
     pathex=[os.path.join(base_path, 'yolo_method')],
     binaries=[],
-    datas=[],
+    datas=[
+        (media_path, 'media'),  # Include media directory
+        (src_path, 'src'),  # Include model files
+        (req_file_path, 'req.txt'),  # Include configuration files
+        # Add other necessary directories or files here
+    ],
     hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
