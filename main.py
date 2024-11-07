@@ -5,16 +5,18 @@ import pandas as pd
 import numpy as np
 import keyboard
 from ultralytics import YOLO
-from tracker import Tracker
+from src.yolo_method.tracker import Tracker
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'utils')))
 
-from utils.video_stream import VideoStream
+from src.utils.video_stream import VideoStream
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-video_path = os.path.join(current_dir, '..', 'media', 'TestVideo.mp4')
+video_path = os.path.join(current_dir, 'media', 'TestVideo.mp4')
 
+# Print the video path to verify it
+print(f"\n\nVideo path\n\n: {video_path}\n\n")
 
 # Carregar o modelo YOLO
 model = YOLO('../yolo_models/yolov8m.pt')
@@ -45,6 +47,12 @@ people_entering = {}
 people_exiting = {}
 entering = set()
 exiting = set()
+
+
+
+
+# Main --------------------------------------------------------
+print("Starting main script - ECOA Cam Detection")
 
 while True:
     # Captura do frame atual

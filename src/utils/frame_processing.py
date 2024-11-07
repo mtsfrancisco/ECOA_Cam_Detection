@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-# To make video slower and visible
+# To make video slower and visibles
 
 
 def adjust_gamma(image, gamma = 1.0):

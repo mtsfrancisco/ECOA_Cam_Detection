@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 from tracker import Tracker
-from video_stream import VideoStream
+from src.utils.video_stream import VideoStream
 
 class PeopleCounter:
     def __init__(self, video_path):
