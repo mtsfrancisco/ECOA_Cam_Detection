@@ -38,7 +38,7 @@ if not os.path.exists(req_file_path):
     raise FileNotFoundError(f"req.txt file not found: {req_file_path}")
 
 a = Analysis(
-    [os.path.join(yolo_method_path, 'main.py')],
+    [os.path.join(yolo_method_path, 'PeopleCounter.py')],
     pathex=[],
     binaries=[],
     datas=[
@@ -84,6 +84,6 @@ coll = COLLECT(
     strip=False,
     upx=False,
     upx_exclude=[],
-    name='main.py',
+    name='PeopleCounter.py',
     distpath=os.path.join(base_path, 'dist')
 )
