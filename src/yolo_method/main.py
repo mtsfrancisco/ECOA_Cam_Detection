@@ -2,8 +2,9 @@ print("Script started.")
 print("Performing setup...")
 
 
-import sys
+
 import os
+import sys
 import cv2
 import pandas as pd
 import numpy as np
@@ -11,7 +12,7 @@ import keyboard
 from ultralytics import YOLO
 from tracker import Tracker
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# Ensure the utils path is added to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'utils')))
 
 from utils.video_stream import VideoStream

@@ -144,7 +144,7 @@ class PeopleCounter:
 
 # Video path
 current_dir = os.path.dirname(os.path.abspath(__file__))
-video_path = os.path.join(current_dir, '..', 'media', 'TestVideo.mp4')
+video_path = os.path.join(current_dir, '..', '..', 'media', 'TestVideo.mp4')
 
 # Instance and run the people counter
 people_counter = PeopleCounter(video_path)
