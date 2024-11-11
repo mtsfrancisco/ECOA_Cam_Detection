@@ -1,2 +1,25 @@
-.venv
-dist/collection
+# Ignore the collection folder within dist
+dist/collection/
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# PyInstaller build artifacts
+build/
+
+# Compiled Python files
+__pycache__/
+*.pyc
+
+# IDE configuration files
+.vscode/
+.idea/
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.temp
