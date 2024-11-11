@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 from tracker import Tracker
-from src.utils.video_stream import VideoStream
+from utils.video_stream import VideoStream
 
 class PeopleCounter:
     def __init__(self, video_path):
@@ -21,14 +21,32 @@ class PeopleCounter:
         self.video_stream = VideoStream(video_path)
         
         # Define entering and exting areas
-        self.area1 = [(0, 600), (1920, 600), (1920, 560), (0, 560)]
-        self.area2 = [(0, 480), (1920, 480), (1920, 520), (0, 520)]
+        self.area1 = []
+        self.area2 = []
+
+        #Areas 1 and 2 for the TestVideo.mp4
+        #self.area1 = [(0, 600), (1920, 600), (1920, 560), (0, 560)]
+        #self.area2 = [(0, 480), (1920, 480), (1920, 520), (0, 520)]
         
         # Start counters and lists of people entering and exiting
         self.people_entering = {}
         self.people_exiting = {}
         self.entering = set()
         self.exiting = set()
+
+    def select_points(self,event, x, y, flags, param):
+        if event == cv2.EVENT_LBUTTONDOWN:
+            # Adiciona o ponto no array correspondente
+            if len(self.area1) < 4:
+                self.area1.append((x, y))
+                print(f"Ponto adicionado ao array 1: {x}, {y}")
+            elif len(self.area2) < 4:
+                self.area2.append((x, y))
+                print(f"Ponto adicionado ao array 2: {x}, {y}")
+
+            if len(self.area1) == 4 and len(self.area2) == 4:
+                 print("8 pontos selecionados. O vídeo irá continuar.")
+                 cv2.setMouseCallback('Frame', lambda *args: None)
 
     def process_frame(self, frame):
         # Detect objects in the frame
@@ -60,8 +78,10 @@ class PeopleCounter:
         # Check if the object is in the defined areas
         if cv2.pointPolygonTest(np.array(self.area2, np.int32), (x4, y4), False) >= 0:
             self.people_entering[obj_id] = (x4, y4)
-            cv2.rectangle(frame, (x3, y3), (x4, y4), (0, 0, 255), 2)
+            cv2.rectangle(frame, (x3, y3), (x4, y4), (0, 255, 0), 2)
+            cv2.putText(frame, str(obj_id), (x3, y3), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
         
+        # Count people entering (descendo no video)
         if obj_id in self.people_entering:
             if cv2.pointPolygonTest(np.array(self.area1, np.int32), (x4, y4), False) >= 0:
                 cv2.rectangle(frame, (x3, y3), (x4, y4), (0, 255, 0), 2)
@@ -72,10 +92,12 @@ class PeopleCounter:
         if cv2.pointPolygonTest(np.array(self.area1, np.int32), (x4, y4), False) >= 0:
             self.people_exiting[obj_id] = (x4, y4)
             cv2.rectangle(frame, (x3, y3), (x4, y4), (0, 255, 0), 2)
+            cv2.putText(frame, str(obj_id), (x3, y3), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
         
+        # Count people exiting (subindo no video)
         if obj_id in self.people_exiting:
             if cv2.pointPolygonTest(np.array(self.area2, np.int32), (x4, y4), False) >= 0:
-                cv2.rectangle(frame, (x3, y3), (x4, y4), (255, 0, 255), 2)
+                cv2.rectangle(frame, (x3, y3), (x4, y4), (0, 255, 0), 2)
                 cv2.circle(frame, (x4, y4), 5, (255, 0, 255), -1)
                 cv2.putText(frame, str(obj_id), (x3, y3), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
                 self.exiting.add(obj_id)
@@ -90,16 +112,35 @@ class PeopleCounter:
         cv2.putText(frame, str(people_out), (150, 140), cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 0, 255), 2)
 
     def run(self):
-        # Main process to capture and process frames
-        while True:
-            ret, frame = self.video_stream.read()
-            if not ret:
-                break
-            self.process_frame(frame)
+        # Create window and set the mouse callback
+        ret, frame = self.video_stream.read()
+
+        if not ret:
+            print("Error reading video")
+            self.video_stream.release()
+
+        else:
             self.video_stream.display(frame, window_name="RGB")
-            if cv2.waitKey(1) & 0xFF == ord("q"):
-                break
-        self.video_stream.release()
+            cv2.putText(frame, "Selecione os pontos da area 1 e 2", (0, 50), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 0, 255), 2)
+            cv2.setMouseCallback("RGB", self.select_points)
+            # Main process to capture and process frames
+
+            while len(self.area1) < 4 or len(self.area2) < 4:
+                cv2.waitKey(1)
+
+            print("Pontos a area 1: ", self.area1)
+            print("Pontos a area 2: ", self.area2)
+
+            while True:
+                ret, frame = self.video_stream.read()
+                if not ret:
+                    break
+                
+                self.process_frame(frame)
+                self.video_stream.display(frame, window_name="RGB")
+                if cv2.waitKey(1) & 0xFF == ord("q"):
+                    break
+            self.video_stream.release()
 
 # Video path
 current_dir = os.path.dirname(os.path.abspath(__file__))
