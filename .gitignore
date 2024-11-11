@@ -1,5 +1,5 @@
 # Ignore the collection folder within dist
-dist/collection/
+dist/
 
 # Virtual environment
 .venv/
