@@ -1,6 +1,10 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 import os
+from PyInstaller.utils.hooks import collect_data_files
+from ultralytics import YOLO
+ultra_files = collect_data_files('ultralytics')
+
 
 base_path = os.getcwd()
 
@@ -46,6 +50,8 @@ a = Analysis(
         (src_path, 'src'),  # Include source directory
         (utils_path, 'utils'),  # Include utils directory
         (req_file_path, 'req.txt'),  # Include req.txt file
+        (model_dir, 'yolo_models'), # Inckudes directory of model into executable
+        *ultra_files, # The star makes ultra_files a list
         # Add other necessary directories or files here
     ],
     hiddenimports=hiddenimports,
