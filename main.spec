@@ -1,58 +1,56 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 import os
+import tempfile
 from PyInstaller.utils.hooks import collect_data_files
 from ultralytics import YOLO
-ultra_files = collect_data_files('ultralytics')
 
+# Defina o diretório temporário para o modelo
+model_dir = os.path.join(tempfile.gettempdir(), 'yolo_models')
+os.makedirs(model_dir, exist_ok=True)  # Garante que o diretório existe
+
+# Colete arquivos necessários da biblioteca ultralytics
+ultra_files = collect_data_files('ultralytics')
 
 base_path = os.getcwd()
 
-# Path to your req.txt file
+# Caminho para o arquivo req.txt
 req_file_path = os.path.join(base_path, 'req.txt')
 
-# Read the req.txt file
+# Leia o arquivo req.txt
 with open(req_file_path, 'r') as f:
     packages = f.readlines()
 
-# Extract package names
+# Extraia os nomes dos pacotes
 package_names = [pkg.split('==')[0].strip() for pkg in packages]
 
-# Define hidden imports
+# Defina as importações ocultas
 hiddenimports = package_names
+hiddenimports.extend(['cv2', 'utils'])  # Adicione bibliotecas externas explicitamente, se necessário
 
-# Add external libraries explicitly if needed
-hiddenimports.extend(['cv2', 'utils'])
-
+# Defina os caminhos para as outras pastas e verifique sua existência
 media_path = os.path.join(base_path, 'media')
 src_path = os.path.join(base_path, 'src')
 yolo_method_path = os.path.join(src_path, 'yolo_method')
 utils_path = os.path.join(src_path, 'utils')
 
-# Check if the directories exist
-if not os.path.exists(media_path):
-    raise FileNotFoundError(f"Media directory not found: {media_path}")
-if not os.path.exists(src_path):
-    raise FileNotFoundError(f"Source directory not found: {src_path}")
-if not os.path.exists(yolo_method_path):
-    raise FileNotFoundError(f"YOLO method directory not found: {yolo_method_path}")
-if not os.path.exists(utils_path):
-    raise FileNotFoundError(f"Utils directory not found: {utils_path}")
-if not os.path.exists(req_file_path):
-    raise FileNotFoundError(f"req.txt file not found: {req_file_path}")
+for path, name in [(media_path, "Media"), (src_path, "Source"), 
+                   (yolo_method_path, "YOLO method"), (utils_path, "Utils"), 
+                   (req_file_path, "req.txt")]:
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"{name} directory not found: {path}")
 
 a = Analysis(
     [os.path.join(yolo_method_path, 'PeopleCounter.py')],
     pathex=[],
     binaries=[],
     datas=[
-        (media_path, 'media'),  # Include media directory
-        (src_path, 'src'),  # Include source directory
-        (utils_path, 'utils'),  # Include utils directory
-        (req_file_path, 'req.txt'),  # Include req.txt file
-        (model_dir, 'yolo_models'), # Inckudes directory of model into executable
-        *ultra_files, # The star makes ultra_files a list
-        # Add other necessary directories or files here
+        (media_path, 'media'),  # Inclui o diretório media
+        (src_path, 'src'),  # Inclui o diretório src
+        (utils_path, 'utils'),  # Inclui o diretório utils
+        (req_file_path, 'req.txt'),  # Inclui o arquivo req.txt
+        (model_dir, 'yolo_models'),  # Inclui o diretório do modelo no executável
+        *ultra_files,  # Expande ultra_files como uma lista de tuplas
     ],
     hiddenimports=hiddenimports,
     hookspath=[],
