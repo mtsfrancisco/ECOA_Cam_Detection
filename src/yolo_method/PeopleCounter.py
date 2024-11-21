@@ -15,8 +15,11 @@ from utils.video_stream import VideoStream
 
 class PeopleCounter:
     def __init__(self, video_path):
+        # Test current directory
+        print("Current directory:", current_dir)
+
         # Start yolo model and video path
-        self.model = YOLO('../yolo_models/yolov8m.pt')
+        self.model = YOLO('../yolo_models/yolov8m.pt', verbose=True)
         self.tracker = Tracker()
         self.video_stream = VideoStream(video_path)
         
