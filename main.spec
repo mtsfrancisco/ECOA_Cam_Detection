@@ -3,6 +3,15 @@ import os
 import subprocess
 import importlib.util
 
+# Ensure the yolo_models directory exists
+def ensure_model_dir_exists():
+    model_dir = os.path.join(os.getcwd(), 'yolo_models')
+    if not os.path.exists(model_dir):
+        os.makedirs(model_dir)
+        print(f"Created directory: {model_dir}")
+    else:
+        print(f"Directory already exists: {model_dir}")
+
 # Check if YOLO is installed
 def ensure_yolo_installed():
     package_name = "ultralytics"  # YOLO package name
@@ -11,6 +20,9 @@ def ensure_yolo_installed():
         subprocess.run(["pip", "install", package_name], check=True)
     else:
         print(f"{package_name} is already installed.")
+
+# Ensure the yolo_models directory exists
+ensure_model_dir_exists()
 
 # Ensure YOLO is installed
 ensure_yolo_installed()
@@ -78,6 +90,6 @@ coll = COLLECT(
     strip=False,
     upx=False,
     upx_exclude=[],
-    name='PeopleCounter.py',
+    name='main',  # Update this to match the EXE name
     distpath=os.path.join(base_path, 'dist'),
 )
