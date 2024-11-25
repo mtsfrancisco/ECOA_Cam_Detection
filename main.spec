@@ -54,6 +54,15 @@ utils_path = os.path.join(src_path, 'utils')
 req_file_path = os.path.join(base_path, 'req.txt')
 model_dir = os.path.join(base_path, 'yolo_models')
 
+# Read requirements from req.txt for hiddenimports
+hidden_imports_list = []
+if os.path.exists(req_file_path):
+    with open(req_file_path, 'r') as req_file:
+        hidden_imports_list = [line.strip() for line in req_file if line.strip() and not line.startswith('#')]
+    print(f"Hidden imports from req.txt: {hidden_imports_list}")
+else:
+    print(f"Error: req.txt file not found at {req_file_path}")
+
 # Define Analysis
 print("Defining PyInstaller Analysis...")
 a = Analysis(
@@ -68,7 +77,7 @@ a = Analysis(
         (model_dir, 'yolo_models'),
         *ultra_files,
     ],
-    hiddenimports=['ultralytics'],  # Explicitly include YOLO package
+    hiddenimports=['ultralytics', *hidden_imports_list],  # Explicitly include YOLO package and libraries from req.txt
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

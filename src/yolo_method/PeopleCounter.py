@@ -19,7 +19,7 @@ class PeopleCounter:
         print("Current directory:", current_dir)
 
         # Start yolo model and video path
-        self.model = YOLO('../yolo_models/yolov11m.pt', verbose=True)
+        self.model = YOLO('../../yolo_models/yolov8m.pt', verbose=True)
         self.tracker = Tracker()
         self.video_stream = VideoStream(video_path)
         
