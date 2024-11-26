@@ -13,7 +13,12 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 from tracker import Tracker
-from utils.video_stream import VideoStream
+from video_stream import VideoStream
+
+if hasattr(sys, '_MEIPASS'):
+    model_path = os.path.join(sys._MEIPASS, 'yolov8m.pt')
+else:
+    model_path = os.path.join(current_dir, '..', 'yolo_models', 'yolov8m.pt')
 
 class PeopleCounter:
     def __init__(self, video_path):
@@ -21,7 +26,7 @@ class PeopleCounter:
         print("Current directory:", current_dir)
 
         # Start yolo model and video path
-        self.model = YOLO('../../yolo_models/yolov8m.pt', verbose=True)
+        self.model = YOLO(model_path, verbose=True)
         self.tracker = Tracker()
         self.video_stream = VideoStream(video_path)
         
@@ -149,18 +154,18 @@ class PeopleCounter:
 
 
 def get_video_path():
-    # Tentar abrir uma janela para o usuário selecionar o vídeo
-    Tk().withdraw()  # Ocultar a janela principal do Tkinter
-    user_input = askopenfilename(title="Selecione o vídeo", filetypes=[("Arquivos de vídeo", "*.mp4")])
+    # Try to open a window for the user to select the video
+    Tk().withdraw()  # Hide the main Tkinter window
+    user_input = askopenfilename(title="Select video file", filetypes=[("Video file", "*.mp4")])
     
-    if user_input:  # Se o usuário selecionar um arquivo, use-o
+    if user_input:  # If the user selects a file, use it
         return user_input
     
-    # Caso contrário, use o caminho embutido
-    if hasattr(sys, '_MEIPASS'):  # Quando executado como executável
+    # Otherwise, use the embedded path
+    if hasattr(sys, '_MEIPASS'):  # When executed as an executable
         return 0
     
-    # Quando executado como script Python
+    # When executed as a Python script
     return 0
 
 # Video path

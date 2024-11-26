@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['exec/PeopleCounter.py'],
+    ['src/yolo_method/PeopleCounter.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('src/yolo_models/yolov8m.pt', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
