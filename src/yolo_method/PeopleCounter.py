@@ -4,6 +4,8 @@ import cv2
 import pandas as pd
 import numpy as np
 from ultralytics import YOLO
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
 
 # Include path to the utils folder
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -145,9 +147,24 @@ class PeopleCounter:
                     break
             self.video_stream.release()
 
+
+def get_video_path():
+    # Tentar abrir uma janela para o usuário selecionar o vídeo
+    Tk().withdraw()  # Ocultar a janela principal do Tkinter
+    user_input = askopenfilename(title="Selecione o vídeo", filetypes=[("Arquivos de vídeo", "*.mp4")])
+    
+    if user_input:  # Se o usuário selecionar um arquivo, use-o
+        return user_input
+    
+    # Caso contrário, use o caminho embutido
+    if hasattr(sys, '_MEIPASS'):  # Quando executado como executável
+        return 0
+    
+    # Quando executado como script Python
+    return 0
+
 # Video path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-video_path = os.path.join(current_dir, '..', '..', 'media', 'TestVideo.mp4')
+video_path = get_video_path()
 
 # Instance and run the people counter
 people_counter = PeopleCounter(video_path)

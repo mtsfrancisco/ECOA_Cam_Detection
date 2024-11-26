@@ -204,10 +204,10 @@ def get_video_path():
     
     # Caso contrário, use o caminho embutido
     if hasattr(sys, '_MEIPASS'):  # Quando executado como executável
-        return os.path.join(sys._MEIPASS, "seu_video.mp4")
+        return 0
     
     # Quando executado como script Python
-    return "caminho/para/seu_video.mp4"
+    return 0
 
 
 # Video path
