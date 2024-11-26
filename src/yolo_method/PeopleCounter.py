@@ -47,20 +47,20 @@ class PeopleCounter:
         self.exiting = set()
 
     def mouse_callback(self, event, x, y, flags, param):
-        """Callback para eventos do mouse."""
-        if event == cv2.EVENT_LBUTTONDOWN:  # Clique do botão esquerdo
-            self.current_points.append((x, y))  # Adiciona o ponto clicado
-            if len(self.current_points) == 4:  # Finaliza o quadrilátero após 4 pontos
-                if len(self.area1) < 1:  # Se não houver quadrilátero em area1
+        """Callback for mouse events."""
+        if event == cv2.EVENT_LBUTTONDOWN:  # Left button click
+            self.current_points.append((x, y))  # Add the clicked point
+            if len(self.current_points) == 4:  # Finalize the quadrilateral after 4 points
+                if len(self.area1) < 1:  # If there is no quadrilateral in area1
                     self.area1.append(self.current_points.copy())
-                else:  # Quando area1 estiver preenchida, preenche area2
+                else:  # When area1 is filled, fill area2
                     self.area2.append(self.current_points.copy())
-                self.current_points = []  # Reseta os pontos para o próximo quadrilátero
+                self.current_points = []  # Reset points for the next quadrilateral
                 self.drawing = False
 
-        elif event == cv2.EVENT_MOUSEMOVE and len(self.current_points) > 0:  # Movimento do mouse
-            self.drawing = True  # Ativa o modo interativo
-            self.current_point = (x, y)  # Atualiza o ponto atual do mouse
+        elif event == cv2.EVENT_MOUSEMOVE and len(self.current_points) > 0:  # Mouse movement
+            self.drawing = True  # Activate interactive mode
+            self.current_point = (x, y)  # Update the current mouse point
 
     def process_frame(self, frame):
         # Detect objects in the frame
@@ -133,44 +133,44 @@ class PeopleCounter:
             print("Error reading video")
             self.video_stream.release()
 
-        """Método principal para executar o programa."""
+        """Draw points window."""
         cv2.namedWindow("Quadrilateral Drawer")
         cv2.setMouseCallback("Quadrilateral Drawer", self.mouse_callback)
         
 
         while True:
-            temp_img = frame.copy()  # Cópia da imagem para desenho temporário
+            temp_img = frame.copy()  # Copy first frame
 
-            # Desenhar os quadriláteros em área 1
+            # Draw area 1 points
             for quadrilateral in self.area1:
                 for i in range(4):
                     cv2.line(temp_img, quadrilateral[i], quadrilateral[(i + 1) % 4], (0, 0, 255), 2)
 
-            # Desenhar os quadriláteros em área 2
+            # Draw area 2 points
             for quadrilateral in self.area2:
                 for i in range(4):
                     cv2.line(temp_img, quadrilateral[i], quadrilateral[(i + 1) % 4], (0, 255, 0), 2)
 
-            # Desenhar os pontos fixos do quadrilátero em criação
+            # Draw fixed points 
             for point in self.current_points:
                 cv2.circle(temp_img, point, 5, (0, 0, 255), -1)
 
-            # Desenhar as linhas fixas do quadrilátero em criação
+            # Draw fixed lines
             if len(self.current_points) > 1:
                 for i in range(len(self.current_points) - 1):
                     cv2.line(temp_img, self.current_points[i], self.current_points[i + 1], (0, 0, 255), 2)
 
-            # Desenhar a linha interativa
+            # Draw iteractive lines
             if self.drawing and len(self.current_points) < 4:
                 cv2.line(temp_img, self.current_points[-1], self.current_point, (0, 255, 0), 2)
-                if len(self.current_points) == 3:  # Linha do primeiro ao terceiro ponto enquanto desenha o quarto
+                if len(self.current_points) == 3:  # Line from the first to the third point while drawing the fourth
                     cv2.line(temp_img, self.current_points[0], self.current_point, (0, 255, 0), 2)
 
             cv2.imshow("Quadrilateral Drawer", temp_img)
 
-            # Sair ao pressionar a tecla ESC
+            # Exit when the ESC key is pressed
             key = cv2.waitKey(1)
-            if key == 27 or len(self.area1) == 1 and len(self.area2) == 1:  # Limite de dois quadriláteros
+            if key == 27 or len(self.area1) == 1 and len(self.area2) == 1:  # Limit of two quadrilaterals
                 break
 
         print("Pontos a area 1: ", self.area1)
