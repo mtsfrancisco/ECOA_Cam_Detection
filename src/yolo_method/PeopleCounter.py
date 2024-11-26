@@ -31,8 +31,10 @@ class PeopleCounter:
         self.video_stream = VideoStream(video_path)
         
         # Define entering and exting areas
-        self.area1 = []
-        self.area2 = []
+        self.current_points = []  # Pontos do quadrilátero em criação
+        self.area1 = []  # Área 1 - primeiro quadriláteros
+        self.area2 = []  # Área 2 - segundo quadriláteros
+        self.drawing = False  # Indica se estamos em modo interativo
 
         #Areas 1 and 2 for the TestVideo.mp4
         #self.area1 = [(0, 600), (1920, 600), (1920, 560), (0, 560)]
@@ -44,19 +46,21 @@ class PeopleCounter:
         self.entering = set()
         self.exiting = set()
 
-    def select_points(self,event, x, y, flags, param):
-        if event == cv2.EVENT_LBUTTONDOWN:
-            # Adiciona o ponto no array correspondente
-            if len(self.area1) < 4:
-                self.area1.append((x, y))
-                print(f"Ponto adicionado ao array 1: {x}, {y}")
-            elif len(self.area2) < 4:
-                self.area2.append((x, y))
-                print(f"Ponto adicionado ao array 2: {x}, {y}")
+    def mouse_callback(self, event, x, y, flags, param):
+        """Callback para eventos do mouse."""
+        if event == cv2.EVENT_LBUTTONDOWN:  # Clique do botão esquerdo
+            self.current_points.append((x, y))  # Adiciona o ponto clicado
+            if len(self.current_points) == 4:  # Finaliza o quadrilátero após 4 pontos
+                if len(self.area1) < 1:  # Se não houver quadrilátero em area1
+                    self.area1.append(self.current_points.copy())
+                else:  # Quando area1 estiver preenchida, preenche area2
+                    self.area2.append(self.current_points.copy())
+                self.current_points = []  # Reseta os pontos para o próximo quadrilátero
+                self.drawing = False
 
-            if len(self.area1) == 4 and len(self.area2) == 4:
-                 print("8 pontos selecionados. O vídeo irá continuar.")
-                 cv2.setMouseCallback('Frame', lambda *args: None)
+        elif event == cv2.EVENT_MOUSEMOVE and len(self.current_points) > 0:  # Movimento do mouse
+            self.drawing = True  # Ativa o modo interativo
+            self.current_point = (x, y)  # Atualiza o ponto atual do mouse
 
     def process_frame(self, frame):
         # Detect objects in the frame
@@ -129,28 +133,59 @@ class PeopleCounter:
             print("Error reading video")
             self.video_stream.release()
 
-        else:
+        """Método principal para executar o programa."""
+        cv2.namedWindow("Quadrilateral Drawer")
+        cv2.setMouseCallback("Quadrilateral Drawer", self.mouse_callback)
+        
+
+        while True:
+            temp_img = frame.copy()  # Cópia da imagem para desenho temporário
+
+            # Desenhar os quadriláteros em área 1
+            for quadrilateral in self.area1:
+                for i in range(4):
+                    cv2.line(temp_img, quadrilateral[i], quadrilateral[(i + 1) % 4], (0, 0, 255), 2)
+
+            # Desenhar os quadriláteros em área 2
+            for quadrilateral in self.area2:
+                for i in range(4):
+                    cv2.line(temp_img, quadrilateral[i], quadrilateral[(i + 1) % 4], (0, 255, 0), 2)
+
+            # Desenhar os pontos fixos do quadrilátero em criação
+            for point in self.current_points:
+                cv2.circle(temp_img, point, 5, (0, 0, 255), -1)
+
+            # Desenhar as linhas fixas do quadrilátero em criação
+            if len(self.current_points) > 1:
+                for i in range(len(self.current_points) - 1):
+                    cv2.line(temp_img, self.current_points[i], self.current_points[i + 1], (0, 0, 255), 2)
+
+            # Desenhar a linha interativa
+            if self.drawing and len(self.current_points) < 4:
+                cv2.line(temp_img, self.current_points[-1], self.current_point, (0, 255, 0), 2)
+                if len(self.current_points) == 3:  # Linha do primeiro ao terceiro ponto enquanto desenha o quarto
+                    cv2.line(temp_img, self.current_points[0], self.current_point, (0, 255, 0), 2)
+
+            cv2.imshow("Quadrilateral Drawer", temp_img)
+
+            # Sair ao pressionar a tecla ESC
+            key = cv2.waitKey(1)
+            if key == 27 or len(self.area1) == 1 and len(self.area2) == 1:  # Limite de dois quadriláteros
+                break
+
+        print("Pontos a area 1: ", self.area1)
+        print("Pontos a area 2: ", self.area2)
+
+        while True:
+            ret, frame = self.video_stream.read()
+            if not ret:
+                break
+            
+            self.process_frame(frame)
             self.video_stream.display(frame, window_name="RGB")
-            cv2.putText(frame, "Selecione os pontos da area 1 e 2", (0, 50), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 0, 255), 2)
-            cv2.setMouseCallback("RGB", self.select_points)
-            # Main process to capture and process frames
-
-            while len(self.area1) < 4 or len(self.area2) < 4:
-                cv2.waitKey(1)
-
-            print("Pontos a area 1: ", self.area1)
-            print("Pontos a area 2: ", self.area2)
-
-            while True:
-                ret, frame = self.video_stream.read()
-                if not ret:
-                    break
-                
-                self.process_frame(frame)
-                self.video_stream.display(frame, window_name="RGB")
-                if cv2.waitKey(1) & 0xFF == ord("q"):
-                    break
-            self.video_stream.release()
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                break
+        self.video_stream.release()
 
 
 def get_video_path():
