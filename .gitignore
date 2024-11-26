@@ -23,3 +23,7 @@ __pycache__/
 # Temporary files
 *.tmp
 *.temp
+
+# Ignore build and dist folders
+build/
+dist/
