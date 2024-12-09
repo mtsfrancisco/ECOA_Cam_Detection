@@ -11,7 +11,7 @@ class Tracker:
 
 
     def update(self, objects_rect):
-        # Objects boxes and ids
+        # Object boxes and ids
         objects_bbs_ids = []
 
         # Get center point of new object
@@ -27,12 +27,13 @@ class Tracker:
 
                 if dist < 35:
                     self.center_points[id] = (cx, cy)
-#                    print(self.center_points)
+                    # print(self.center_points)
                     objects_bbs_ids.append([x, y, w, h, id])
                     same_object_detected = True
                     break
 
-            # New object is detected we assign the ID to that object
+            # New object is detected we assign new ID to that object
+            # ID used is from the dictionary
             if same_object_detected is False:
                 self.center_points[self.id_count] = (cx, cy)
                 objects_bbs_ids.append([x, y, w, h, self.id_count])
@@ -45,6 +46,6 @@ class Tracker:
             center = self.center_points[object_id]
             new_center_points[object_id] = center
 
-        # Update dictionary with IDs not used removed
+        # Update dictionary where IDs not used are removed
         self.center_points = new_center_points.copy()
         return objects_bbs_ids
