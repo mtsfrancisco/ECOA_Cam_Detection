@@ -16,7 +16,7 @@ from tracker import Tracker
 from video_stream import VideoStream
 
 # Define model here
-model_str = "yolov8m.pt"
+model_str = "yolo11m.pt"
 
 # To bundle the model with the executable
 if hasattr(sys, '_MEIPASS'):
