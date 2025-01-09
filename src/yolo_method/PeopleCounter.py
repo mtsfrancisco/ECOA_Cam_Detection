@@ -15,10 +15,14 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 from tracker import Tracker
 from video_stream import VideoStream
 
+# Define model here
+model_str = "yolo11n.pt"
+
+# To bundle the model with the executable
 if hasattr(sys, '_MEIPASS'):
-    model_path = os.path.join(sys._MEIPASS, 'yolov8m.pt')
+    model_path = os.path.join(sys._MEIPASS, model_str)
 else:
-    model_path = os.path.join(current_dir, '..', 'yolo_models', 'yolov8m.pt')
+    model_path = os.path.join(current_dir, '..', 'yolo_models', model_str)
 
 class PeopleCounter:
     def __init__(self, video_path):
@@ -45,6 +49,8 @@ class PeopleCounter:
         self.people_exiting = {}
         self.entering = set()
         self.exiting = set()
+        self.frame_skip = 2  # Number of frames to skip
+        self.frame_count = 0
 
     def mouse_callback(self, event, x, y, flags, param):
         """Callback for mouse events."""
@@ -63,8 +69,20 @@ class PeopleCounter:
             self.current_point = (x, y)  # Update the current mouse point
 
     def process_frame(self, frame):
-        # Detect objects in the frame
-        results = self.model.predict(frame)
+        # Draw entrance and exit areas
+        cv2.polylines(frame, [np.array(self.area1, np.int32)], True, (255, 0, 0), 2)
+        cv2.polylines(frame, [np.array(self.area2, np.int32)], True, (255, 0, 0), 2)
+
+        # Add people count to the frame
+        self.display_count(frame)
+
+        # Skip frames to improve performance
+        self.frame_count += 1
+        if self.frame_count % self.frame_skip != 0:
+            return
+
+        # Detect objects in the frame with a confidence threshold
+        results = self.model.predict(frame, conf=0.5)
         bbox_data = results[0].boxes.data
         bbox_df = pd.DataFrame(bbox_data).astype("float")
         
@@ -80,13 +98,6 @@ class PeopleCounter:
         for bbox in bbox_ids:
             x3, y3, x4, y4, obj_id = bbox
             self.handle_entrance_exit(frame, x3, y3, x4, y4, obj_id)
-        
-        # Draw entrance and exit areas
-        cv2.polylines(frame, [np.array(self.area1, np.int32)], True, (255, 0, 0), 2)
-        cv2.polylines(frame, [np.array(self.area2, np.int32)], True, (255, 0, 0), 2)
-        
-        # Add people count to the frame
-        self.display_count(frame)
 
     def handle_entrance_exit(self, frame, x3, y3, x4, y4, obj_id):
         # Check if the object is in the defined areas
