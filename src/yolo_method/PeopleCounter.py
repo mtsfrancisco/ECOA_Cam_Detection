@@ -16,7 +16,7 @@ from tracker import Tracker
 from video_stream import VideoStream
 
 # Define model here
-model_str = "yolo11n.pt"
+model_str = "yolov8m.pt"
 
 # To bundle the model with the executable
 if hasattr(sys, '_MEIPASS'):
@@ -77,12 +77,12 @@ class PeopleCounter:
         self.display_count(frame)
 
         # Skip frames to improve performance
-        self.frame_count += 1
-        if self.frame_count % self.frame_skip != 0:
-            return
+        # self.frame_count += 1
+        # if self.frame_count % self.frame_skip != 0:
+        #     return
 
         # Detect objects in the frame with a confidence threshold
-        results = self.model.predict(frame, conf=0.5)
+        results = self.model.predict(frame, conf=0.5, classes=[0])
         bbox_data = results[0].boxes.data
         bbox_df = pd.DataFrame(bbox_data).astype("float")
         
