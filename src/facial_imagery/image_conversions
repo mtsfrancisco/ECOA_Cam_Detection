@@ -1,0 +1,33 @@
+import base64
+from PIL import Image
+from io import BytesIO
+
+def image_to_base64(image_path):
+    """
+    Convert an image file to a Base64 string.
+    
+    Args:
+        image_path (str): Path to the image file.
+    
+    Returns:
+        str: Base64-encoded string of the image.
+    """
+    with open(image_path, "rb") as img_file:
+        base64_string = base64.b64encode(img_file.read()).decode("utf-8")
+    return f"data:image/{image_path.split('.')[-1]};base64,{base64_string}"
+
+def base64_to_image(base64_string, output_path):
+    """
+    Convert a Base64 string back to an image file.
+    
+    Args:
+        base64_string (str): Base64-encoded string of the image.
+        output_path (str): Path to save the decoded image file.
+    """
+    # Remove the Base64 prefix if it exists (e.g., data:image/png;base64,)
+    if base64_string.startswith("data:image"):
+        base64_string = base64_string.split(",")[1]
+    
+    image_data = base64.b64decode(base64_string)
+    with open(output_path, "wb") as output_file:
+        output_file.write(image_data)
