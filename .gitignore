@@ -3,8 +3,11 @@ dist/
 
 # Virtual environment
 .venv/
-env/
 venv/
+
+# Ignore the contents of the .env file but include the empty file
+.env/*
+!.env
 
 # PyInstaller build artifacts
 build/

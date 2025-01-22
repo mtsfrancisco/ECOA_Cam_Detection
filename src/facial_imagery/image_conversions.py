@@ -1,8 +1,6 @@
 import base64
 import os
 import json
-from PIL import Image
-from io import BytesIO
 
 def image_to_base64(image_path):
     """

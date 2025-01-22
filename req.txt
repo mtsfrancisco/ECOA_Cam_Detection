@@ -38,3 +38,4 @@ ultralytics==8.3.21
 ultralytics-thop==2.0.9
 urllib3==2.2.3
 tk
+firebase_admin
