@@ -1,7 +1,7 @@
 import os
 import uuid
-from ..firebase.fire import add_user, get_user, update_user, delete_user, get_all_users
-from facial_imagery.image_conversions import image_to_base64, base64_to_image
+from src.firebase.fire import add_user, get_user, update_user, delete_user, get_all_users
+from src.facial_imagery.image_conversions import image_to_base64, base64_to_image
 
 def add_user_with_image(name, image_path):
     """
@@ -14,6 +14,7 @@ def add_user_with_image(name, image_path):
     Returns:
         str: The generated user ID.
     """
+    image_path = os.path.join(os.path.dirname(__file__), "faces", image_path)
     user_id = str(uuid.uuid4())  # Generate a unique user ID
     base64_image = image_to_base64(image_path)
     add_user(user_id, name, base64_image)
@@ -50,6 +51,7 @@ def update_user_image(user_id, name=None, image_path=None):
     """
     base64_image = None
     if image_path:
+        image_path = os.path.join(os.path.dirname(__file__), "faces", image_path)
         base64_image = image_to_base64(image_path)
     update_user(user_id, name, base64_image)
 
@@ -65,19 +67,19 @@ def delete_user_with_image(user_id):
     if os.path.exists(image_path):
         os.remove(image_path)
 
-def update_local_folder():
+def check_all_faces_in_folder():
     """
-    Adds images to local folder that hadn't been updated correctly.
-
+    Check whether all faces stored in Firebase are present in the faces folder.
+    
+    Returns:
+        list: List of user IDs whose images are missing in the faces folder.
     """
+    missing_images = []
     users = get_all_users()
-    added_ids = []
-
+    
     for user_id, user_data in users.items():
         image_path = os.path.join('faces', f"{user_id}.png")
         if not os.path.exists(image_path):
-            base64_to_image(user_data['image_64'], f"{user_id}.png")
-            added_ids.append(user_id)
-
-        for id in added_ids:
-            print(f"Added image for user: {id}")
+            missing_images.append(user_id)
+    
+    return missing_images

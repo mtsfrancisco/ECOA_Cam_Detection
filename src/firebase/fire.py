@@ -4,13 +4,9 @@ from firebase_admin import credentials, db
 
 # Get the service account key from the Firebase project settings
 # Gear icon > Project settings > Service accounts > Generate new private key
-
-cred = credentials.Certificate(os.path.join(os.path.dirname(__file__), './serviceAccountKey.json'))
-
-# Intializing app with service account, granting admin privileges
-firebase_admin.initialize_app(cred, {
-    'databaseURL': 'https://ecoa-camera-default-rtdb.firebaseio.com/'
-})
+servicePath = os.path.join(os.path.dirname(__file__), 'serviceAccountKey.json')
+cred = credentials.Certificate(servicePath)
+firebase_admin.initialize_app(cred)
 
 # Functions to handle users branch
 
@@ -37,3 +33,7 @@ def update_user(user_id, name=None, image_64=None):
 def delete_user(user_id):
     ref = db.reference(f'users/{user_id}')
     ref.delete()
+
+def get_all_users():
+    ref = db.reference('users')
+    return ref.get()

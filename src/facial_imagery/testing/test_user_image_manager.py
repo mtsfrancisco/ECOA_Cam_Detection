@@ -3,6 +3,7 @@ import json
 import unittest
 from unittest.mock import patch, MagicMock
 from src.facial_imagery.user_image_manager import add_user_with_image, get_user_image, update_user_image, delete_user_with_image, check_all_faces_in_folder
+from src.facial_imagery.image_conversions import image_to_base64, base64_to_image
 
 class TestUserImageManager(unittest.TestCase):
 
@@ -10,7 +11,8 @@ class TestUserImageManager(unittest.TestCase):
     @patch('src.facial_imagery.image_conversions.image_to_base64')
     def test_add_user_with_image(self, mock_image_to_base64, mock_add_user):
         mock_image_to_base64.return_value = "base64_string"
-        user_id = add_user_with_image("Test User", "spaceship2.jpg")
+        image_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "faces", "spaceship2.jpg")
+        user_id = add_user_with_image("Test User", image_path)
         mock_add_user.assert_called_once_with(user_id, "Test User", "base64_string")
 
     @patch('src.firebase.fire.get_user')
@@ -29,7 +31,8 @@ class TestUserImageManager(unittest.TestCase):
     @patch('src.facial_imagery.image_conversions.image_to_base64')
     def test_update_user_image(self, mock_image_to_base64, mock_update_user):
         mock_image_to_base64.return_value = "new_base64_string"
-        update_user_image("test_user_id", name="Updated User", image_path="spaceship2.jpg")
+        image_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "faces", "spaceship2.jpg")
+        update_user_image("test_user_id", name="Updated User", image_path=image_path)
         mock_update_user.assert_called_once_with("test_user_id", "Updated User", "new_base64_string")
 
     @patch('src.firebase.fire.delete_user')
