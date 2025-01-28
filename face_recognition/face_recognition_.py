@@ -102,7 +102,6 @@ while True:
                         cv2.putText(frame, f"Gender: {gender}", (10, square_size + 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
                         print(f"Pessoa reconhecida: {person_name}")
-                        print(f"Age: {age}, Gender: {gender}")
 
                         # Exibe o frame da webcam com as imagens por 4 segundos
                         cv2.imshow("Webcam", frame)
@@ -125,6 +124,22 @@ while True:
     # Verifica se a tecla 'q' foi pressionada para sair
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+
+import os
+
+# Caminho do arquivo que você deseja excluir
+tempo_roi = "temp_roi.jpg"
+
+try:
+    # Verifica se o arquivo existe
+    if os.path.exists(tempo_roi):
+        os.remove(tempo_roi)  # Exclui o arquivo
+        print(f"Imagem temoraria excluida")
+    else:
+        print(f"O arquivo '{tempo_roi}' não foi encontrado.")
+except Exception as e:
+    print(f"Ocorreu um erro ao excluir o arquivo: {e}")
+
 
 # Libera a webcam e fecha as janelas
 video_capture.release()
