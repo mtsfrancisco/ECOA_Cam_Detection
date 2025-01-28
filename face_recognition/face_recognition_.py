@@ -2,6 +2,7 @@ import cv2
 import face_recognition
 import os
 import time
+from deepface import DeepFace
 
 # Caminho para a pasta "people"
 current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -33,12 +34,7 @@ video_capture = cv2.VideoCapture(0)
 # Dimensões do quadrado no meio da tela
 frame_width = int(video_capture.get(cv2.CAP_PROP_FRAME_WIDTH))
 frame_height = int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
-
-#******************************
-#Mudar para 500 no MAC
 square_size = 500
-
 x_start = frame_width // 2 - square_size // 2
 y_start = frame_height // 2 - square_size // 2
 x_end = x_start + square_size
@@ -62,44 +58,63 @@ while True:
         roi = frame[y_start:y_end, x_start:x_end]
         rgb_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2RGB)
 
-        # Procura faces na região do quadrado
-        face_encodings = face_recognition.face_encodings(rgb_roi)
+        # Salva a ROI temporariamente para análise com DeepFace
+        temp_roi_path = "temp_roi.jpg"
+        cv2.imwrite(temp_roi_path, roi)
 
-        if face_encodings:
-            # Usa apenas a primeira face detectada
-            face_encoding = face_encodings[0]
+        try:
+            # Analisa a face com DeepFace para idade e gênero
+            analysis = DeepFace.analyze(img_path=temp_roi_path, actions=["age", "gender"], enforce_detection=False)
 
-            # Compara com as faces conhecidas
-            matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
-            face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+            if analysis:
+                # Pega os resultados da análise
+                age = analysis[0]["age"]
+                gender = analysis[0]["dominant_gender"]
 
-            if any(matches):
-                # Identifica a face com menor distância
-                best_match_index = matches.index(True)
+                # Procura faces na região do quadrado usando face_recognition
+                face_encodings = face_recognition.face_encodings(rgb_roi)
 
-                # Mostra a foto da pessoa conhecida
-                person_image = known_face_images[best_match_index]
-                person_name = known_face_names[best_match_index]
+                if face_encodings:
+                    # Usa apenas a primeira face detectada
+                    face_encoding = face_encodings[0]
 
-                person_image = cv2.resize(person_image, (square_size, square_size))
+                    # Compara com as faces conhecidas
+                    matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
+                    face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
 
-                # Coloca a imagem da pessoa reconhecida no frame
-                frame[0:square_size, 0:square_size] = person_image
-                frame[0:square_size, square_size:square_size*2] = roi
+                    if any(matches):
+                        # Identifica a face com menor distância
+                        best_match_index = matches.index(True)
 
-                # Adiciona o nome da pessoa reconhecida abaixo das imagens
-                cv2.putText(frame, person_name, (10, square_size + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+                        # Mostra a foto da pessoa conhecida
+                        person_image = known_face_images[best_match_index]
+                        person_name = known_face_names[best_match_index]
 
-                print(f"Pessoa reconhecida: {person_name}")
+                        person_image = cv2.resize(person_image, (square_size, square_size))
 
-                # Exibe o frame da webcam com as imagens por 4 segundos
-                cv2.imshow("Webcam", frame)
-                cv2.waitKey(4000)
+                        # Coloca a imagem da pessoa reconhecida no frame
+                        frame[0:square_size, 0:square_size] = person_image
+                        frame[0:square_size, square_size:square_size * 2] = roi
 
+                        # Adiciona o nome da pessoa reconhecida e informações abaixo das imagens
+                        cv2.putText(frame, person_name, (10, square_size + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+                        cv2.putText(frame, f"Age: {age}", (10, square_size + 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+                        cv2.putText(frame, f"Gender: {gender}", (10, square_size + 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+
+                        print(f"Pessoa reconhecida: {person_name}")
+                        print(f"Age: {age}, Gender: {gender}")
+
+                        # Exibe o frame da webcam com as imagens por 4 segundos
+                        cv2.imshow("Webcam", frame)
+                        cv2.waitKey(4000)
+                    else:
+                        print("Pessoa não reconhecida")
+                else:
+                    print("Nenhuma face detectada no quadrado")
             else:
-                print("Pessoa não reconhecida")
-        else:
-            print("Nenhuma face detectada no quadrado")
+                print("Nenhuma face detectada para análise de idade e gênero")
+        except Exception as e:
+            print(f"Erro ao analisar a face: {e}")
 
         # Atualiza o último tempo de verificação
         last_check_time = time.time()
