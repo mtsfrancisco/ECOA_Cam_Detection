@@ -4,9 +4,12 @@ from firebase_admin import credentials, db
 
 # Get the service account key from the Firebase project settings
 # Gear icon > Project settings > Service accounts > Generate new private key
-servicePath = os.path.join(os.path.dirname(__file__), 'serviceAccountKey.json')
-cred = credentials.Certificate(servicePath)
-firebase_admin.initialize_app(cred)
+
+service_account_path = os.path.join(os.path.dirname(__file__), 'serviceAccountKey.json')
+cred = credentials.Certificate(service_account_path)
+firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://ecoa-camera-default-rtdb.firebaseio.com'
+})
 
 # Functions to handle users branch
 
