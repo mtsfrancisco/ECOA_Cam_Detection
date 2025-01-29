@@ -98,8 +98,8 @@ while True:
 
                         # Adiciona o nome da pessoa reconhecida e informações abaixo das imagens
                         cv2.putText(frame, person_name, (10, square_size + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-                        cv2.putText(frame, f"Age: {age}", (10, square_size + 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-                        cv2.putText(frame, f"Gender: {gender}", (10, square_size + 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+                        #cv2.putText(frame, f"Age: {age}", (10, square_size + 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+                        #cv2.putText(frame, f"Gender: {gender}", (10, square_size + 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
                         print(f"Pessoa reconhecida: {person_name}")
 
@@ -107,7 +107,13 @@ while True:
                         cv2.imshow("Webcam", frame)
                         cv2.waitKey(4000)
                     else:
+                        cv2.putText(frame, "Pessoa nao conhecida", (10, square_size + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+                        cv2.putText(frame, f"Age: {age}", (10, square_size + 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+                        cv2.putText(frame, f"Gender: {gender}", (10, square_size + 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+
                         print("Pessoa não reconhecida")
+                        cv2.imshow("Webcam", frame)
+                        cv2.waitKey(4000)
                 else:
                     print("Nenhuma face detectada no quadrado")
             else:
