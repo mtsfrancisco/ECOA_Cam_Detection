@@ -1,9 +1,8 @@
 import cv2
 import os
 
-# Cria a pasta 'people' caso ela não exista
-if not os.path.exists('people'):
-    os.makedirs('people')
+current_directory = os.path.dirname(os.path.abspath(__file__))
+people_directory = os.path.join(current_directory, "people")
 
 # Inicializa a captura de vídeo da webcam
 cap = cv2.VideoCapture(0)
@@ -26,7 +25,7 @@ while True:
     # Se a tecla 'w' for pressionada, salva a imagem
     if key == ord('w'):
         # Define o nome da imagem com a data e hora
-        image_filename = os.path.join('people', 'photo.jpg')
+        image_filename = os.path.join(people_directory, 'photo.jpg')
         cv2.imwrite(image_filename, frame)
         print(f'Imagem salva como {image_filename}')
 

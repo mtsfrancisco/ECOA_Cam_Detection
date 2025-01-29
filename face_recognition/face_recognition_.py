@@ -37,7 +37,7 @@ frame_height = int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
 #******************************
 #Mudar para 500 no MAC
-square_size = 250
+square_size = 500
 
 x_start = frame_width // 2 - square_size // 2
 y_start = frame_height // 2 - square_size // 2
