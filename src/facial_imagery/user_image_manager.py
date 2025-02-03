@@ -8,18 +8,9 @@ class UserImageManager:
     def __init__(self, faces_dir="faces"):
         self.faces_dir = os.path.join(os.path.dirname(__file__), faces_dir)
 
-    import os
-import random
-from src.firebase.fire import add_user
-from src.facial_imagery.image_conversions import image_to_base64
-
-class UserImageManager:
-    def __init__(self, faces_dir="faces"):
-        self.faces_dir = os.path.join(os.path.dirname(__file__), faces_dir)
-
-    def add_user_with_image(self, name, user_id=None):
+    def add_user_local(self, name, user_id=None):
         """
-        Add a user to Firebase with their image converted to Base64.
+        Add a user to Firebase with their image stored locally.
         
         Args:
             name (str): The user's name.
@@ -30,10 +21,37 @@ class UserImageManager:
         if user_id is None:
             user_id = str(random.randint(100000, 999999))
         
-        image_path = os.path.join(self.faces_dir, name)
+        image_path = os.path.abspath(self.faces_dir, '..', 'temp')
         base64_image = image_to_base64(image_path)
+
         add_user(user_id, name, base64_image)
         return user_id
+
+    def add_user_with_image(self, user_id, name):
+        """
+        Add a user to Firebase with their image converted to Base64.
+        
+        Args:
+            user_id (str): The user ID.
+            name (str): The user's name.
+        
+        Returns:
+            str: The user ID.
+        """
+        user_folder = os.path.join(self.faces_dir, user_id)
+        
+        if not os.path.exists(user_folder):
+            raise FileNotFoundError(f"Folder for user_id {user_id} does not exist: {user_folder}")
+        
+        image_filename = self._find_first_image(user_folder)
+        
+        if image_filename:
+            image_path = os.path.join(user_folder, image_filename)
+            base64_image = image_to_base64(image_path)
+            add_user(user_id, name, base64_image)
+            return user_id
+        else:
+            raise FileNotFoundError(f"No image found in folder: {user_folder}")
 
     def get_user_image(self, user_id):
         """
@@ -47,8 +65,8 @@ class UserImageManager:
         """
         user_data = get_user(user_id)
         if user_data:
-            image_name = f"{user_id}.png"
-            base64_to_image(user_data['image_64'], image_name)
+            image_name = f"{user_id}.jpg"
+            base64_to_image(user_data['image_64'], user_id)
             return {
                 'name': user_data['name'],
                 'image_path': os.path.join(self.faces_dir, image_name)
@@ -98,3 +116,18 @@ class UserImageManager:
                 missing_images.append(user_id)
         
         return missing_images
+    
+    def _find_first_image(self, folder_path):
+        """
+        Find the first image file in the given folder.
+        
+        Args:
+            folder_path (str): Path to the folder.
+        
+        Returns:
+            str: The filename of the first image found, or None if no image is found.
+        """
+        for filename in os.listdir(folder_path):
+            if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
+                return filename
+        return None
