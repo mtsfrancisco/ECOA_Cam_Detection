@@ -4,7 +4,6 @@ from firebase_admin import credentials, db
 
 # Get the service account key from the Firebase project settings
 # Gear icon > Project settings > Service accounts > Generate new private key
-# Add serviceAccountKey.json to the same directory as this file
 
 service_account_path = os.path.join(os.path.dirname(__file__), 'serviceAccountKey.json')
 cred = credentials.Certificate(service_account_path)
