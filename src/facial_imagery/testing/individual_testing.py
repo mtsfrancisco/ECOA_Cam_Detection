@@ -35,6 +35,21 @@ def get_user(user_id):
     manager = UserImageManager()
     return manager.get_user_image(user_id)
 
+def add_user_local(name, user_id):
+    """
+    Add user lcally
+
+    Args:
+        user_id (str): The user ID.
+        name (str): The user's name.
+
+    Returns:
+        dict: User data including name and image path.
+    """
+
+    manager = UserImageManager()
+    return manager.add_user_local(name, user_id)
 
 
+print(add_user_local("Matheus", "23461"))
 print(add_user("Matheus.jpg"))

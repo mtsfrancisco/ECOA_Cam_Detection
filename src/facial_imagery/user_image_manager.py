@@ -21,11 +21,32 @@ class UserImageManager:
         if user_id is None:
             user_id = str(random.randint(100000, 999999))
         
-        image_path = os.path.abspath(self.faces_dir, '..', 'temp')
-        base64_image = image_to_base64(image_path)
+        temp_dir = os.path.abspath(os.path.join(self.faces_dir, '..', 'temp'))
+        image_filename = self._find_first_image(temp_dir)
+        
+        if image_filename:
+            original_image_path = os.path.join(temp_dir, image_filename)
+            new_image_name = f"{name}.jpg"
+            new_image_path = os.path.join(temp_dir, new_image_name)
+            os.rename(original_image_path, new_image_path)
+            
+            user_folder = os.path.join(self.faces_dir, user_id)
+            os.makedirs(user_folder, exist_ok=True)
+            
+            final_image_path = os.path.join(user_folder, new_image_name)
+            os.rename(new_image_path, final_image_path)
+            
+            base64_image = image_to_base64(final_image_path)
+            add_user(user_id, name, base64_image)
+            
+            # Optionally, delete the original image from the temp folder
+            if os.path.exists(new_image_path):
+                os.remove(new_image_path)
+            
+            return user_id
+        else:
+            raise FileNotFoundError(f"No image found in folder: {temp_dir}")
 
-        add_user(user_id, name, base64_image)
-        return user_id
 
     def add_user_with_image(self, user_id, name):
         """
