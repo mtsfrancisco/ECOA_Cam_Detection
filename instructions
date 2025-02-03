@@ -1,0 +1,20 @@
+To run in an environment:
+- Create a virtual environment
+- Install the independencies necessary through the use of pip 
+    and the req.txt file given
+- If tkinter isnt installed run the following outside of the 
+    venv environment -> brew install tkinter
+- You will have to check if versions of python3 and tkinter 
+    match
+- To run use f5 while in the PeopleCounter.py file or...
+    ... use the Python + directory to run the program
+
+To run within the .exe
+- To create the .exe simply run pyinstaller PeopleCounter.spec
+- It may take up to 15 minutes for the .exe to compile and
+    be ready for use
+- Once compiled simply head to the dist/ folder created and
+    double click on the resulting .exe file to run the program
+- If it takes a while for the program to start, this is normal
+    behavior as opening it does indeed take a delay to start
+    due to packages/libraries installed

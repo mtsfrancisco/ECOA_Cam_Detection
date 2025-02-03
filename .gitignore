@@ -1,0 +1,32 @@
+# Ignore the collection folder within dist
+dist/
+
+# Virtual environment
+.venv/
+venv/
+
+# Ignore the contents of the .env file but include the empty file
+.env/*
+!.env
+
+# PyInstaller build artifacts
+build/
+
+# Compiled Python files
+__pycache__/
+*.pyc
+
+# IDE configuration files
+.vscode/
+.idea/
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Ignore build and dist folders
+build/
+dist/
