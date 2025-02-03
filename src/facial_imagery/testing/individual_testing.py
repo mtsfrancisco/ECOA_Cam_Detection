@@ -5,7 +5,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../..'))
 from src.facial_imagery.user_image_manager import UserImageManager
 
-def add_user(image_name):
+def add_user(user_id, image_name):
     """
     Add a user to Firebase with their image converted to Base64.
 
@@ -18,7 +18,7 @@ def add_user(image_name):
     """
 
     manager = UserImageManager()
-    return manager.add_user_with_image(image_name)
+    return manager.add_user_with_image(user_id, image_name)
 
 
 def get_user(user_id):
@@ -48,8 +48,9 @@ def add_user_local(name, user_id):
     """
 
     manager = UserImageManager()
-    return manager.add_user_local(name, user_id)
+    manager.add_user_local(name, user_id)
+    return manager.add_user_with_image(user_id, f"{name}.jpg")
 
 
-print(add_user_local("Matheus", "23461"))
-print(add_user("Matheus.jpg"))
+print(add_user_local("Matheus", "134612"))
+#print(add_user("Matheus.jpg"))
