@@ -18,13 +18,7 @@ def add_user(image_name):
     """
 
     manager = UserImageManager()
-    image_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "faces", image_name)
-    
-    if not os.path.exists(image_path):
-        print(f"Error: The image '{image_name}' was not found at path '{image_path}'.")
-        return None
-
-    return manager.add_user_with_image(image_name, image_path)
+    return manager.add_user_with_image(image_name)
 
 
 def get_user(user_id):

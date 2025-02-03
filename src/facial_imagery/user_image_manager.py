@@ -1,5 +1,6 @@
 import os
 import uuid
+import random
 from src.firebase.fire import add_user, get_user, update_user, delete_user, get_all_users
 from src.facial_imagery.image_conversions import image_to_base64, base64_to_image
 
@@ -7,19 +8,29 @@ class UserImageManager:
     def __init__(self, faces_dir="faces"):
         self.faces_dir = os.path.join(os.path.dirname(__file__), faces_dir)
 
-    def add_user_with_image(self, name, image_path):
+    import os
+import random
+from src.firebase.fire import add_user
+from src.facial_imagery.image_conversions import image_to_base64
+
+class UserImageManager:
+    def __init__(self, faces_dir="faces"):
+        self.faces_dir = os.path.join(os.path.dirname(__file__), faces_dir)
+
+    def add_user_with_image(self, name, user_id=None):
         """
         Add a user to Firebase with their image converted to Base64.
         
         Args:
             name (str): The user's name.
-            image_path (str): Path to the user's image file.
         
         Returns:
             str: The generated user ID.
         """
-        image_path = os.path.join(self.faces_dir, image_path)
-        user_id = str(uuid.uuid4())  # Generate a unique user ID
+        if user_id is None:
+            user_id = str(random.randint(100000, 999999))
+        
+        image_path = os.path.join(self.faces_dir, name)
         base64_image = image_to_base64(image_path)
         add_user(user_id, name, base64_image)
         return user_id
