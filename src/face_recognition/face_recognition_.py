@@ -6,27 +6,34 @@ from deepface import DeepFace
 
 # Caminho para a pasta "people"
 current_directory = os.path.dirname(os.path.abspath(__file__))
-people_directory = os.path.join(current_directory, "people")
+users_directory = os.path.join(current_directory, "..", "local_database", "users")
+print(users_directory)
 
 # Arrays para armazenar encodings e nomes
 known_face_encodings = []
 known_face_names = []
 known_face_images = []
 
-# Percorre os arquivos na pasta "people"
-for filename in os.listdir(people_directory):
-    if filename.lower().endswith((".jpg", ".jpeg", ".png")):
-        file_path = os.path.join(people_directory, filename)
+# Percorre todas as pastas dentro do diretório de usuários
+for user_folder in os.listdir(users_directory):
+    user_path = os.path.join(users_directory, user_folder)
+    
+    # Verifica se é um diretório
+    if os.path.isdir(user_path):
+        for filename in os.listdir(user_path):
+            if filename.lower().endswith((".jpg", ".jpeg", ".png")):
+                file_path = os.path.join(user_path, filename)
 
-        # Carrega a imagem
-        image = face_recognition.load_image_file(file_path)
+                # Carrega a imagem
+                image = face_recognition.load_image_file(file_path)
 
-        # Extrai os encodings da face (considera apenas a primeira face encontrada)
-        encodings = face_recognition.face_encodings(image)
-        if encodings:
-            known_face_encodings.append(encodings[0])
-            known_face_names.append(os.path.splitext(filename)[0])
-            known_face_images.append(cv2.imread(file_path))
+                # Extrai os encodings da face (considera apenas a primeira face encontrada)
+                encodings = face_recognition.face_encodings(image)
+                if encodings:
+                    known_face_encodings.append(encodings[0])
+                    person_name = os.path.splitext(filename)[0] # Usa o nome da imagem como identificação do usuário
+                    known_face_names.append(person_name)  
+                    known_face_images.append(cv2.imread(file_path))
 
 # Inicializa a webcam
 video_capture = cv2.VideoCapture(0)
