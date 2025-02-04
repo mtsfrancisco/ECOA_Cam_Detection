@@ -1,71 +1,90 @@
 import os
 import uuid
 import random
+import json
 from src.firebase.fire import add_user, get_user, update_user, delete_user, get_all_users
-from src.facial_imagery.image_conversions import image_to_base64, base64_to_image
+from src.firebase.image_conversions import image_to_base64, base64_to_image
 
 class UserImageManager:
-    def __init__(self, faces_dir="faces"):
-        self.faces_dir = os.path.join(os.path.dirname(__file__), faces_dir)
+    def __init__(self):
+        self.users_dir = os.path.join(os.path.dirname(__file__), '..', 'local_database', 'users')
 
-    def add_user_local(self, name, user_id=None):
+    def add_user_local(self, user_data):
         """
         Add a user to Firebase with their image stored locally.
+        Used when a new user is being made
+        -> There has to be an image of the user being made in the temp_user folder!!!
         
         Args:
             name (str): The user's name.
+            user_id (str, optional): The user ID.
         
         Returns:
             str: The generated user ID.
         """
-        if user_id is None:
-            user_id = str(random.randint(100000, 999999))
         
-        temp_dir = os.path.abspath(os.path.join(self.faces_dir, '..', 'temp'))
+        temp_dir = os.path.abspath(os.path.join(self.users_dir, '..', 'temp_user'))
         image_filename = self._find_first_image(temp_dir)
         
         if image_filename:
             original_image_path = os.path.join(temp_dir, image_filename)
-            new_image_name = f"{name}.jpg"
+            new_image_name = f"{user_data.name}.jpg"
             new_image_path = os.path.join(temp_dir, new_image_name)
+            # Just to gaurantee that image is named after the user
             os.rename(original_image_path, new_image_path)
-            
-            user_folder = os.path.join(self.faces_dir, user_id)
+
+            user_folder = os.path.join(self.users_dir, user_data.user_id)
             os.makedirs(user_folder, exist_ok=True)
             
             final_image_path = os.path.join(user_folder, new_image_name)
             os.rename(new_image_path, final_image_path)
-            
-            base64_image = image_to_base64(final_image_path)
-            add_user(user_id, name, base64_image)
-            
-            # Optionally, delete the original image from the temp folder
+                        
+            # Deleting the temporary image
             if os.path.exists(new_image_path):
                 os.remove(new_image_path)
             
-            return user_id
+            return user_data.user_id
         else:
             raise FileNotFoundError(f"No image found in folder: {temp_dir}")
 
 
-    def add_user_with_image(self, user_id, name):
+    def create_user(self, name, last_name, gender, user_id=None):
         """
-        Add a user to Firebase with their image converted to Base64.
-        
+        Add a user to Firebase and local with their image converted to Base64.
+        -> There has to be an image of the user being made in the temp_user folder!!!
+
         Args:
             user_id (str): The user ID.
             name (str): The user's name.
+            last_name (str): The user's last name.
+            gender (str):
+            user_id (str, optional): The user ID.
         
         Returns:
             str: The user ID.
         """
-        user_folder = os.path.join(self.faces_dir, user_id)
+                    
+        if not user_id:
+            user_id = str(random.randint(100000, 999999))
         
+        # Createing json file with user data
+        user_data = {
+            'name': name,
+            'last_name': last_name,
+            'user_id': user_id,
+            'gender': gender
+        }
+
+        # Create locally
+        self.add_user_local(user_data)
+
+        # Direct to users folder
+        user_folder = os.path.join(self.users_dir, user_id)
         if not os.path.exists(user_folder):
             raise FileNotFoundError(f"Folder for user_id {user_id} does not exist: {user_folder}")
         
+        # Find image and data for user and send to database
         image_filename = self._find_first_image(user_folder)
-        
         if image_filename:
             image_path = os.path.join(user_folder, image_filename)
             base64_image = image_to_base64(image_path)
@@ -90,7 +109,7 @@ class UserImageManager:
             base64_to_image(user_data['image_64'], user_id)
             return {
                 'name': user_data['name'],
-                'image_path': os.path.join(self.faces_dir, image_name)
+                'image_path': os.path.join(self.users_dir, image_name)
             }
         return None
 
@@ -105,7 +124,7 @@ class UserImageManager:
         """
         base64_image = None
         if image_path:
-            image_path = os.path.join(self.faces_dir, image_path)
+            image_path = os.path.join(self.users_dir, image_path)
             base64_image = image_to_base64(image_path)
         update_user(user_id, name, base64_image)
 
@@ -117,7 +136,7 @@ class UserImageManager:
             user_id (str): The user ID.
         """
         delete_user(user_id)
-        image_path = os.path.join(self.faces_dir, f"{user_id}.png")
+        image_path = os.path.join(self.users_dir, f"{user_id}.png")
         if os.path.exists(image_path):
             os.remove(image_path)
 
@@ -132,7 +151,7 @@ class UserImageManager:
         users = get_all_users()
         
         for user_id, user_data in users.items():
-            image_path = os.path.join(self.faces_dir, f"{user_id}.png")
+            image_path = os.path.join(self.users_dir, f"{user_id}.png")
             if not os.path.exists(image_path):
                 missing_images.append(user_id)
         
