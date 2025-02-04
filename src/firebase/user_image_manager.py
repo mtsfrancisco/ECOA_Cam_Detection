@@ -8,8 +8,10 @@ from src.firebase.image_conversions import image_to_base64, base64_to_image
 class UserImageManager:
     def __init__(self):
         self.users_dir = os.path.join(os.path.dirname(__file__), '..', 'local_database', 'users')
+        self.temp_dir = os.path.abspath(os.path.join(self.users_dir, '..', 'temp_user'))
 
-    def add_user_local(self, user_data):
+
+    def add_user_local(self, user_id, user_data):
         """
         Add a user to Firebase with their image stored locally.
         Used when a new user is being made
@@ -23,29 +25,29 @@ class UserImageManager:
             str: The generated user ID.
         """
         
-        temp_dir = os.path.abspath(os.path.join(self.users_dir, '..', 'temp_user'))
-        image_filename = self._find_first_image(temp_dir)
+        image_filename = self._find_first_image(self.temp_dir)
         
         if image_filename:
-            original_image_path = os.path.join(temp_dir, image_filename)
-            new_image_name = f"{user_data.name}.jpg"
-            new_image_path = os.path.join(temp_dir, new_image_name)
+            original_image_path = os.path.join(self.temp_dir, image_filename)
+            new_image_name = f"{user_data['name']}.jpg"
+            new_image_path = os.path.join(self.temp_dir, new_image_name)
             # Just to gaurantee that image is named after the user
             os.rename(original_image_path, new_image_path)
 
-            user_folder = os.path.join(self.users_dir, user_data.user_id)
+            user_folder = os.path.join(self.users_dir, user_id)
             os.makedirs(user_folder, exist_ok=True)
             
             final_image_path = os.path.join(user_folder, new_image_name)
             os.rename(new_image_path, final_image_path)
-                        
-            # Deleting the temporary image
-            if os.path.exists(new_image_path):
-                os.remove(new_image_path)
+
+            # Save user data as JSON in the same folder
+            user_data_path = os.path.join(user_folder, f"{user_data['user_id']}.json")
+            with open(user_data_path, 'w') as json_file:
+                json.dump(user_data, json_file, indent=4)
             
-            return user_data.user_id
+            return user_id
         else:
-            raise FileNotFoundError(f"No image found in folder: {temp_dir}")
+            raise FileNotFoundError(f"No image found in folder: {self.temp_dir}")
 
 
     def create_user(self, name, last_name, gender, user_id=None):
@@ -85,13 +87,15 @@ class UserImageManager:
         
         # Find image and data for user and send to database
         image_filename = self._find_first_image(user_folder)
+
         if image_filename:
             image_path = os.path.join(user_folder, image_filename)
             base64_image = image_to_base64(image_path)
-            add_user(user_id, name, base64_image)
+            add_user(user_id, user_data, base64_image)
             return user_id
         else:
             raise FileNotFoundError(f"No image found in folder: {user_folder}")
+
 
     def get_user_image(self, user_id):
         """
