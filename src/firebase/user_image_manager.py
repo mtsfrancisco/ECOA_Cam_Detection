@@ -81,20 +81,20 @@ class UserImageManager:
         self.add_user_local(user_data)
 
         # Direct to users folder
-        user_folder = os.path.join(self.users_dir, user_id)
-        if not os.path.exists(user_folder):
-            raise FileNotFoundError(f"Folder for user_id {user_id} does not exist: {user_folder}")
+        temp_folder = os.path.join(self.users_dir, user_id)
+        if not os.path.exists(temp_folder):
+            raise FileNotFoundError(f"Error looking for temporary folder: {temp_folder}")
         
         # Find image and data for user and send to database
-        image_filename = self._find_first_image(user_folder)
+        image_filename = self._find_first_image(temp_folder)
 
         if image_filename:
-            image_path = os.path.join(user_folder, image_filename)
+            image_path = os.path.join(temp_folder, image_filename)
             base64_image = image_to_base64(image_path)
             add_user(user_id, user_data, base64_image)
             return user_id
         else:
-            raise FileNotFoundError(f"No image found in folder: {user_folder}")
+            raise FileNotFoundError(f"No image found in temporary folder: {temp_folder}")
 
 
     def get_user_image(self, user_id):
