@@ -78,7 +78,7 @@ class UserImageManager:
         }
 
         # Create locally
-        self.add_user_local(user_data)
+        self.add_user_local(user_id, user_data)
 
         # Direct to users folder
         temp_folder = os.path.join(self.users_dir, user_id)
