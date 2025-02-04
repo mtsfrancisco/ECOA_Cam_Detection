@@ -14,12 +14,9 @@ firebase_admin.initialize_app(cred, {
 
 # Functions to handle users branch
 
-def add_user(user_id, name, image_64):
+def add_user(user_id, user_data, image_64):
     ref = db.reference(f'users/{user_id}')
-    ref.set({
-        'name': name,
-        'image_64': image_64
-    })
+    ref.set(user_data)
 
 def get_user(user_id):
     ref = db.reference(f'users/{user_id}')
