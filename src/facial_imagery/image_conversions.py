@@ -15,17 +15,10 @@ def image_to_base64(image_path):
     with open(image_path, "rb") as img_file:
         base64_string = base64.b64encode(img_file.read()).decode("utf-8")
 
-    image_name = os.path.basename(image_path)
     image_extension = image_path.split('.')[-1]
     base64_data = f"data:image/{image_extension};base64,{base64_string}"
 
-    # Create a JSON object
-    json_data = json.dumps({
-        "image_name": image_name,
-        "base64_string": base64_data
-    })
-
-    return json_data
+    return base64_data
 
 def base64_to_image(base64_string, output_filename):
     """
