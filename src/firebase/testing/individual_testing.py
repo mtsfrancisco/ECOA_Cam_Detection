@@ -18,39 +18,8 @@ def add_user():
     """
 
     manager = UserImageManager()
-    return manager.create_user('Matheus', 'Franciso', 'F', '134612')
+    return manager.create_user('Space', 'Ship', 'S')
 
-
-
-def get_user(user_id):
-    """
-    Retrieve a user's image from Firebase and save it to the faces folder.
-
-    Args:
-        user_id (str): The user ID.
-
-    Returns:
-        dict: User data including name and image path.
-    """
-
-    manager = UserImageManager()
-    return manager.get_user_image(user_id)
-
-def add_user_local(name, user_id):
-    """
-    Add user lcally
-
-    Args:
-        user_id (str): The user ID.
-        name (str): The user's name.
-
-    Returns:
-        dict: User data including name and image path.
-    """
-
-    manager = UserImageManager()
-    manager.add_user_local(name, user_id)
-    return manager.add_user_with_image(user_id, f"{name}.jpg")
 
 def update_user():
     """
@@ -67,6 +36,7 @@ def update_user():
     manager = UserImageManager()
     return manager.update_user_data('Matheus', 'Francisco', 'M', '134612')
 
+
 def delete_user():
     """
     Delete a user from Firebase.
@@ -78,6 +48,17 @@ def delete_user():
     manager = UserImageManager()
     return manager.delete_user('134612')
 
+def recover_users():
+    """
+    Recover all users from Firebase.
+
+    Returns:
+        dict: All users in the database.
+    """
+
+    manager = UserImageManager()
+    return manager.recover_users()
 #print(add_user())
 #print(update_user())
-print(delete_user())
+#print(delete_user())
+print(recover_users())
