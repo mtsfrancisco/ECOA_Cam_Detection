@@ -153,22 +153,40 @@ class UserImageManager:
         else:
             raise FileNotFoundError(f"User folder not found: {user_folder}")
 
-    def recover_local(self):
+    def recover_users(self):
         """
         Check whether all faces stored in Firebase are present in the faces folder.
         
         Returns:
             list: List of user IDs whose images are missing in the faces folder.
         """
-        missing_images = []
+        # Delete the existing users folder
+        if os.path.exists(self.users_dir):
+            shutil.rmtree(self.users_dir)
+        
+        # Create a new users folder
+        os.makedirs(self.users_dir, exist_ok=True)
+
+        # Getting users from Firebase
         users = get_all_users()
-        
+        user_ids = []
+
+        # Iterating users to add locally
         for user_id, user_data in users.items():
-            image_path = os.path.join(self.users_dir, f"{user_id}.png")
-            if not os.path.exists(image_path):
-                missing_images.append(user_id)
+            user_folder = os.path.join(self.users_dir, user_id)
+            os.makedirs(user_folder, exist_ok=True)
+            
+            # Save user data as JSON in the same folder
+            user_data_path = os.path.join(user_folder, f"{user_id}.json")
+            with open(user_data_path, 'w') as json_file:
+                json.dump(user_data, json_file, indent=4)
+            
+            # Save the user's image in the same folder
+            image_path = os.path.join(user_folder, f"{user_data['name']}.jpg")
+            base64_to_image(user_data['image_64'], image_path)
+            user_ids.append(user_id)
         
-        return missing_images
+        return "Successfully recovered the following ids: " + str(user_ids)
     
     def _find_first_image(self, folder_path):
         """
