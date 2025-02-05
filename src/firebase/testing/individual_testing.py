@@ -18,7 +18,7 @@ def add_user():
     """
 
     manager = UserImageManager()
-    return manager.create_user('Matheus', 'Franciso', 'M', '134612')
+    return manager.create_user('Matheus', 'Franciso', 'F', '134612')
 
 
 
@@ -65,7 +65,7 @@ def update_user():
     """
 
     manager = UserImageManager()
-    return manager.update_user_data('Matheus', 'Francisco', 'M', 134612)
+    return manager.update_user_data('Matheus', 'Francisco', 'M', '134612')
 
-print(add_user())
-#print(add_user("Matheus.jpg"))
+#print(add_user())
+print(update_user())

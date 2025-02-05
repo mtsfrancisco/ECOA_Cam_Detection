@@ -82,16 +82,16 @@ class UserImageManager:
         self.add_user_local(user_data, user_id)
 
         # Direct to users folder
-        temp_folder = os.path.join(self.users_dir, user_id)
-        if not os.path.exists(temp_folder):
+        user_folder = os.path.join(self.users_dir, user_id)
+        if not os.path.exists(user_folder):
             raise FileNotFoundError(f"Error looking for temporary folder: {temp_folder}")
         
         # Find image and data for user and send to database
-        image_filename = self._find_first_image(temp_folder)
+        image_filename = self._find_first_image(user_folder)
 
         # Adds user to firebase
         if image_filename:
-            image_path = os.path.join(temp_folder, image_filename)
+            image_path = os.path.join(user_folder, image_filename)
             base64_image = image_to_base64(image_path)
             user_data['image_64'] = base64_image
             add_user(user_id, user_data)
@@ -109,11 +109,6 @@ class UserImageManager:
             last_name (str, optional): The user's new last name.
             gender (str, optional): The user's new
         """
-        
-        # Find image in temp folder
-        if image_path:
-            image_path = os.path.join(self.users_dir, image_path)
-            base64_image = image_to_base64(image_path)
 
         user_data = {
             'name': name,
@@ -124,10 +119,20 @@ class UserImageManager:
 
         # Adding locally than adding image info for firebase
         self.add_user_local(user_data, user_id)
-        user_data['image_64'] = base64_image
+        user_folder = os.path.join(self.users_dir, user_id)
+        if not os.path.exists(user_folder):
+            raise FileNotFoundError(f"Error looking for temporary folder: {temp_folder}")
+        
+        # Find image and data for user and send to database
+        image_filename = self._find_first_image(user_folder)
 
-        # Updating user in firebase
-        confirmation_id = update_user(user_id, user_data)
+        # Adds user to firebase
+        if image_filename:
+            image_path = os.path.join(user_folder, image_filename)
+            base64_image = image_to_base64(image_path)
+            user_data['image_64'] = base64_image
+            confirmation_id = update_user(user_id, user_data)
+            
         return(confirmation_id)
 
 
