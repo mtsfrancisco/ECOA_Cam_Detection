@@ -67,5 +67,17 @@ def update_user():
     manager = UserImageManager()
     return manager.update_user_data('Matheus', 'Francisco', 'M', '134612')
 
+def delete_user():
+    """
+    Delete a user from Firebase.
+
+    Args:
+        user_id (str): The user ID.
+    """
+
+    manager = UserImageManager()
+    return manager.delete_user('134612')
+
 #print(add_user())
-print(update_user())
+#print(update_user())
+print(delete_user())
