@@ -1,5 +1,5 @@
 import os
-import uuid
+import shutil
 import random
 import json
 from src.firebase.fire import add_user, get_user, update_user, delete_user, get_all_users
@@ -136,19 +136,24 @@ class UserImageManager:
         return(confirmation_id)
 
 
-    def delete_user_with_image(self, user_id):
+    def delete_user(self, user_id):
         """
-        Delete a user from Firebase and remove their image from the faces folder.
-        
+        Delete a user from Firebase and local storage.
+
         Args:
             user_id (str): The user ID.
         """
+        # Delete user from Firebase
         delete_user(user_id)
-        image_path = os.path.join(self.users_dir, f"{user_id}.png")
-        if os.path.exists(image_path):
-            os.remove(image_path)
 
-    def check_all_faces_in_folder(self):
+        # Delete user from local storage
+        user_folder = os.path.join(self.users_dir, user_id)
+        if os.path.exists(user_folder):
+            shutil.rmtree(user_folder)
+        else:
+            raise FileNotFoundError(f"User folder not found: {user_folder}")
+
+    def recover_local(self):
         """
         Check whether all faces stored in Firebase are present in the faces folder.
         
