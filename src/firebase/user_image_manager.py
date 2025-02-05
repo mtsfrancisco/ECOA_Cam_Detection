@@ -91,7 +91,8 @@ class UserImageManager:
         if image_filename:
             image_path = os.path.join(temp_folder, image_filename)
             base64_image = image_to_base64(image_path)
-            add_user(user_id, user_data, base64_image)
+            user_data['image_64'] = base64_image
+            add_user(user_id, user_data)
             return user_id
         else:
             raise FileNotFoundError(f"No image found in temporary folder: {temp_folder}")
@@ -117,20 +118,33 @@ class UserImageManager:
             }
         return None
 
-    def update_user_image(self, user_id, name=None, image_path=None):
+    def update_user_image(self, user_id):
         """
         Update a user's information and/or image in Firebase.
         
         Args:
             user_id (str): The user ID.
             name (str, optional): The user's new name.
-            image_path (str, optional): Path to the user's new image file.
+            last_name (str, optional): The user's new last name.
+            gender (str, optional): The user's new
         """
         base64_image = None
         if image_path:
             image_path = os.path.join(self.users_dir, image_path)
             base64_image = image_to_base64(image_path)
         update_user(user_id, name, base64_image)
+
+    def update_user_info(self, name, last_name, gender, user_id):
+        """
+        Update a user's information and/or image in Firebase.
+        
+        Args:
+            user_id (str): The user ID.
+            name (str, optional): The user's new name.
+            last_name (str, optional): The user's new last name.
+            gender (str, optional): The user's new
+        """
+
 
     def delete_user_with_image(self, user_id):
         """
