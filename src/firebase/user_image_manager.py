@@ -11,7 +11,7 @@ class UserImageManager:
         self.temp_dir = os.path.abspath(os.path.join(self.users_dir, '..', 'temp_user'))
 
 
-    def add_user_local(self, user_id, user_data):
+    def add_user_local(self, user_data, user_id):
         """
         Add a user to Firebase with their image stored locally.
         Used when a new user is being made
@@ -31,7 +31,7 @@ class UserImageManager:
             original_image_path = os.path.join(self.temp_dir, image_filename)
             new_image_name = f"{user_data['name']}.jpg"
             new_image_path = os.path.join(self.temp_dir, new_image_name)
-            # Just to gaurantee that image is named after the user
+            # Just to guarantee that image is named after the user
             os.rename(original_image_path, new_image_path)
 
             user_folder = os.path.join(self.users_dir, user_id)
@@ -65,7 +65,8 @@ class UserImageManager:
         Returns:
             str: The user ID.
         """
-                    
+        
+        # Creating 6 digit id
         if not user_id:
             user_id = str(random.randint(100000, 999999))
         
@@ -78,7 +79,7 @@ class UserImageManager:
         }
 
         # Create locally
-        self.add_user_local(user_id, user_data)
+        self.add_user_local(user_data, user_id)
 
         # Direct to users folder
         temp_folder = os.path.join(self.users_dir, user_id)
@@ -88,6 +89,7 @@ class UserImageManager:
         # Find image and data for user and send to database
         image_filename = self._find_first_image(temp_folder)
 
+        # Adds user to firebase
         if image_filename:
             image_path = os.path.join(temp_folder, image_filename)
             base64_image = image_to_base64(image_path)
@@ -97,53 +99,36 @@ class UserImageManager:
         else:
             raise FileNotFoundError(f"No image found in temporary folder: {temp_folder}")
 
-
-    def get_user_image(self, user_id):
-        """
-        Retrieve a user's image from Firebase and save it to the faces folder.
-        
-        Args:
-            user_id (str): The user ID.
-        
-        Returns:
-            dict: User data including name and image path.
-        """
-        user_data = get_user(user_id)
-        if user_data:
-            image_name = f"{user_id}.jpg"
-            base64_to_image(user_data['image_64'], user_id)
-            return {
-                'name': user_data['name'],
-                'image_path': os.path.join(self.users_dir, image_name)
-            }
-        return None
-
-    def update_user_image(self, user_id):
+    def update_user_data(self, name, last_name, gender, user_id):
         """
         Update a user's information and/or image in Firebase.
-        
+        -> Needs an image in the temp_user folder!!!
         Args:
             user_id (str): The user ID.
             name (str, optional): The user's new name.
             last_name (str, optional): The user's new last name.
             gender (str, optional): The user's new
         """
-        base64_image = None
+        
+        # Find image in temp folder
         if image_path:
             image_path = os.path.join(self.users_dir, image_path)
             base64_image = image_to_base64(image_path)
-        update_user(user_id, name, base64_image)
 
-    def update_user_info(self, name, last_name, gender, user_id):
-        """
-        Update a user's information and/or image in Firebase.
-        
-        Args:
-            user_id (str): The user ID.
-            name (str, optional): The user's new name.
-            last_name (str, optional): The user's new last name.
-            gender (str, optional): The user's new
-        """
+        user_data = {
+            'name': name,
+            'last_name': last_name,
+            'gender': gender,
+            'user_id': user_id,
+        }
+
+        # Adding locally than adding image info for firebase
+        self.add_user_local(user_data, user_id)
+        user_data['image_64'] = base64_image
+
+        # Updating user in firebase
+        confirmation_id = update_user(user_id, user_data)
+        return(confirmation_id)
 
 
     def delete_user_with_image(self, user_id):

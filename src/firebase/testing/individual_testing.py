@@ -52,6 +52,20 @@ def add_user_local(name, user_id):
     manager.add_user_local(name, user_id)
     return manager.add_user_with_image(user_id, f"{name}.jpg")
 
+def update_user():
+    """
+    Update a user's data in Firebase.
+
+    Args:
+        user_id (str): The user ID.
+        image_name (str): The user's image file name.
+
+    Returns:
+        dict: User data including name and image path.
+    """
+
+    manager = UserImageManager()
+    return manager.update_user_data('Matheus', 'Francisco', 'M', 134612)
 
 print(add_user())
 #print(add_user("Matheus.jpg"))

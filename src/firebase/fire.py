@@ -22,14 +22,9 @@ def get_user(user_id):
     ref = db.reference(f'users/{user_id}')
     return ref.get()
 
-def update_user(user_id, name=None, image_64=None):
+def update_user(user_id, user_data):
     ref = db.reference(f'users/{user_id}')
-    updates = {}
-    if name:
-        updates['name'] = name
-    if image_64:
-        updates['image_64'] = image_64
-    ref.update(updates)
+    ref.update(user_data)
 
 def delete_user(user_id):
     ref = db.reference(f'users/{user_id}')
