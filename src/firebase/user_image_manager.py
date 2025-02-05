@@ -84,7 +84,7 @@ class UserImageManager:
         # Direct to users folder
         user_folder = os.path.join(self.users_dir, user_id)
         if not os.path.exists(user_folder):
-            raise FileNotFoundError(f"Error looking for temporary folder: {temp_folder}")
+            raise FileNotFoundError(f"Error looking for temporary folder: {user_folder}")
         
         # Find image and data for user and send to database
         image_filename = self._find_first_image(user_folder)
@@ -97,7 +97,7 @@ class UserImageManager:
             add_user(user_id, user_data)
             return user_id
         else:
-            raise FileNotFoundError(f"No image found in temporary folder: {temp_folder}")
+            raise FileNotFoundError(f"No image found in temporary folder: {user_folder}")
 
     def update_user_data(self, name, last_name, gender, user_id):
         """
@@ -132,7 +132,7 @@ class UserImageManager:
             base64_image = image_to_base64(image_path)
             user_data['image_64'] = base64_image
             confirmation_id = update_user(user_id, user_data)
-            
+
         return(confirmation_id)
 
 
