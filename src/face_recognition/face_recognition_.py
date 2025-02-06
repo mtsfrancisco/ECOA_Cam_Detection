@@ -15,6 +15,7 @@ class Person:
         self.encoding = encoding
         self.image = image
 
+# Carrega as faces conhecidas
 persons = []
 known_face_encodings = []
 
@@ -38,6 +39,8 @@ def load_known_people(directory):
                             image=cv2.imread(file_path),
                         ))
                         known_face_encodings.append(encodings[0])
+
+load_known_people(USERS_DIRECTORY)
 
 # Inicializa a webcam
 video_capture = cv2.VideoCapture(0)
@@ -100,8 +103,8 @@ while True:
                         best_match_index = matches.index(True)
 
                         # Mostra a foto da pessoa conhecida
-                        person_image = [person.image for person, match in zip(persons, matches) if match]
-                        person_name = [person.name for person, match in zip(persons, matches) if match]
+                        person_image = persons[best_match_index].image
+                        person_name = persons[best_match_index].name
 
                         person_image = cv2.resize(person_image, (square_size, square_size))
 
