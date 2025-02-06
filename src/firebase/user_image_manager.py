@@ -3,7 +3,7 @@ import shutil
 import random
 import json
 from src.firebase.fire import add_user, get_user, update_user, delete_user, get_all_users
-from src.firebase.image_conversions import image_to_base64, base64_to_image
+from src.firebase.image_conversions import ImageConversions
 
 class UserImageManager:
     def __init__(self):
@@ -92,7 +92,7 @@ class UserImageManager:
         # Adds user to firebase
         if image_filename:
             image_path = os.path.join(user_folder, image_filename)
-            base64_image = image_to_base64(image_path)
+            base64_image = ImageConversions.image_to_base64(image_path)
             user_data['image_64'] = base64_image
             add_user(user_id, user_data)
             return user_id
@@ -129,7 +129,7 @@ class UserImageManager:
         # Adds user to firebase
         if image_filename:
             image_path = os.path.join(user_folder, image_filename)
-            base64_image = image_to_base64(image_path)
+            base64_image = ImageConversions.image_to_base64(image_path)
             user_data['image_64'] = base64_image
             confirmation_id = update_user(user_id, user_data)
 
@@ -183,7 +183,7 @@ class UserImageManager:
             
             # Save the user's image in the same folder
             image_path = os.path.join(user_folder, f"{user_data['name']}.jpg")
-            base64_to_image(user_data['image_64'], image_path)
+            ImageConversions.base64_to_image(user_data['image_64'], image_path)
             user_ids.append(user_id)
         
         return "Successfully recovered the following ids: " + str(user_ids)
