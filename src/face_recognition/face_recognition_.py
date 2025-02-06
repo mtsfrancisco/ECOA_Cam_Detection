@@ -4,6 +4,7 @@ import os
 import time
 from deepface import DeepFace
 import os
+import json
 
 # Caminho para a pasta "people"
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -23,8 +24,19 @@ def load_known_people(directory):
     """Carrega as faces conhecidas e armazena em uma lista de objetos KnownFace. E fazer o load dos encondings no array known_face_encodings"""
     for user_folder in os.listdir(directory):
         user_path = os.path.join(directory, user_folder)
-        
         if os.path.isdir(user_path):
+            json_file = None
+            for filename in os.listdir(user_path):
+                if filename.lower().endswith(".json"):
+                    json_file = os.path.join(user_path, filename)
+                    break
+            if json_file:
+                # Lê o arquivo JSON para obter o nome da pessoa
+                with open(json_file, "r") as f:
+                    person_data = json.load(f)
+                    person_name = person_data.get("name", user_folder)  # Usa o nome do JSON ou o nome da pasta como fallback
+                    person_last_name = person_data.get("last_name", user_folder) 
+
             for filename in os.listdir(user_path):
                 if filename.lower().endswith((".jpg", ".jpeg", ".png")):
                     file_path = os.path.join(user_path, filename)
@@ -32,9 +44,8 @@ def load_known_people(directory):
                     encodings = face_recognition.face_encodings(image)
                     
                     if encodings:
-                        person_name = os.path.splitext(filename)[0]
                         persons.append(Person(
-                            name=person_name,
+                            name=person_name + ' ' + person_last_name,
                             encoding=encodings[0],
                             image=cv2.imread(file_path),
                         ))
