@@ -7,7 +7,6 @@ from deepface import DeepFace
 # Caminho para a pasta "people"
 current_directory = os.path.dirname(os.path.abspath(__file__))
 users_directory = os.path.join(current_directory, "..", "local_database", "users")
-print(users_directory)
 
 # Arrays para armazenar encodings e nomes
 known_face_encodings = []
@@ -71,12 +70,14 @@ while True:
 
         try:
             # Analisa a face com DeepFace para idade e gênero
-            analysis = DeepFace.analyze(img_path=temp_roi_path, actions=["age", "gender"], enforce_detection=False)
+            analysis = DeepFace.analyze(img_path=temp_roi_path, actions=["age", "gender", "race", "emotion"], enforce_detection=False)
 
             if analysis:
                 # Pega os resultados da análise
                 age = analysis[0]["age"]
                 gender = analysis[0]["dominant_gender"]
+                race = analysis[0]["dominant_race"]
+                emotion = analysis[0]["dominant_emotion"]
 
                 # Procura faces na região do quadrado usando face_recognition
                 face_encodings = face_recognition.face_encodings(rgb_roi)
@@ -117,12 +118,16 @@ while True:
                         cv2.putText(frame, "Pessoa nao conhecida", (10, square_size + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
                         cv2.putText(frame, f"Age: {age}", (10, square_size + 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
                         cv2.putText(frame, f"Gender: {gender}", (10, square_size + 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+                        cv2.putText(frame, f"Race: {race}", (10, square_size + 140), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+                        cv2.putText(frame, f"Emotion: {emotion}", (10, square_size + 170), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+                        
+
 
                         print("Pessoa não reconhecida")
                         cv2.imshow("Webcam", frame)
                         cv2.waitKey(4000)
                 else:
-                    print("Nenhuma face detectada no quadrado")
+                    print("Nenhum rosto detectado")
             else:
                 print("Nenhuma face detectada para análise de idade e gênero")
         except Exception as e:
@@ -140,9 +145,8 @@ while True:
 
 import os
 
-# Caminho do arquivo que você deseja excluir
-tempo_roi = "temp_roi.jpg"
 
+tempo_roi = "temp_roi.jpg"
 try:
     # Verifica se o arquivo existe
     if os.path.exists(tempo_roi):
