@@ -3,36 +3,63 @@ import face_recognition
 import os
 import time
 from deepface import DeepFace
+import os
 
 # Caminho para a pasta "people"
-current_directory = os.path.dirname(os.path.abspath(__file__))
-users_directory = os.path.join(current_directory, "..", "local_database", "users")
+CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+USERS_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "..", "local_database", "users")
 
 # Arrays para armazenar encodings e nomes
 known_face_encodings = []
 known_face_names = []
 known_face_images = []
 
-# Percorre todas as pastas dentro do diretório de usuários
-for user_folder in os.listdir(users_directory):
-    user_path = os.path.join(users_directory, user_folder)
-    
-    # Verifica se é um diretório
-    if os.path.isdir(user_path):
-        for filename in os.listdir(user_path):
-            if filename.lower().endswith((".jpg", ".jpeg", ".png")):
-                file_path = os.path.join(user_path, filename)
+def load_face_encodings(users_directory):
+    """
+    Load facial encodings and user names from an images directory.
 
-                # Carrega a imagem
-                image = face_recognition.load_image_file(file_path)
+    Args:
+        users_directory (str): Path to the directory containing user subfolders.
 
-                # Extrai os encodings da face (considera apenas a primeira face encontrada)
-                encodings = face_recognition.face_encodings(image)
-                if encodings:
-                    known_face_encodings.append(encodings[0])
-                    person_name = os.path.splitext(filename)[0] # Usa o nome da imagem como identificação do usuário
-                    known_face_names.append(person_name)  
-                    known_face_images.append(cv2.imread(file_path))
+    Returns:
+        tuple: (known_face_encodings, known_face_names, known_face_images)
+            - known_face_encodings (list): List of facial encodings.
+            - known_face_names (list): List of user names based on the file names.
+            - known_face_images (list): List of loaded images.
+    """
+    known_face_encodings = []
+    known_face_names = []
+    known_face_images = []
+
+    # Percorre todas as pastas dentro do diretório de usuários
+    for user_folder in os.listdir(users_directory):
+        user_path = os.path.join(users_directory, user_folder)
+
+        # Verifica se é um diretório
+        if os.path.isdir(user_path):
+            for filename in os.listdir(user_path):
+                if filename.lower().endswith((".jpg", ".jpeg", ".png")):
+                    file_path = os.path.join(user_path, filename)
+
+                    # Carrega a imagem
+                    image = face_recognition.load_image_file(file_path)
+
+                    # Extrai os encodings da face (considera apenas a primeira face encontrada)
+                    encodings = face_recognition.face_encodings(image)
+                    if encodings:
+                        known_face_encodings.append(encodings[0])
+
+                        # Usa o nome da imagem como identificação do usuário
+                        person_name = os.path.splitext(filename)[0]
+                        known_face_names.append(person_name)
+
+                        # Carrega a imagem com OpenCV
+                        known_face_images.append(cv2.imread(file_path))
+
+    return known_face_encodings, known_face_names, known_face_images
+
+# Carrega os encodings faciais e nomes dos usuários
+known_face_encodings, known_face_names, known_face_images = load_face_encodings(USERS_DIRECTORY)
 
 # Inicializa a webcam
 video_capture = cv2.VideoCapture(0)
@@ -120,8 +147,6 @@ while True:
                         cv2.putText(frame, f"Gender: {gender}", (10, square_size + 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
                         cv2.putText(frame, f"Race: {race}", (10, square_size + 140), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
                         cv2.putText(frame, f"Emotion: {emotion}", (10, square_size + 170), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-                        
-
 
                         print("Pessoa não reconhecida")
                         cv2.imshow("Webcam", frame)
@@ -142,8 +167,6 @@ while True:
     # Verifica se a tecla 'q' foi pressionada para sair
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-
-import os
 
 
 tempo_roi = "temp_roi.jpg"
