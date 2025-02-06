@@ -9,57 +9,35 @@ import os
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 USERS_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "..", "local_database", "users")
 
-# Arrays para armazenar encodings e nomes
+class Person:
+    def __init__(self, name, encoding, image):
+        self.name = name
+        self.encoding = encoding
+        self.image = image
+
+persons = []
 known_face_encodings = []
-known_face_names = []
-known_face_images = []
 
-def load_face_encodings(users_directory):
-    """
-    Load facial encodings and user names from an images directory.
-
-    Args:
-        users_directory (str): Path to the directory containing user subfolders.
-
-    Returns:
-        tuple: (known_face_encodings, known_face_names, known_face_images)
-            - known_face_encodings (list): List of facial encodings.
-            - known_face_names (list): List of user names based on the file names.
-            - known_face_images (list): List of loaded images.
-    """
-    known_face_encodings = []
-    known_face_names = []
-    known_face_images = []
-
-    # Percorre todas as pastas dentro do diretório de usuários
-    for user_folder in os.listdir(users_directory):
-        user_path = os.path.join(users_directory, user_folder)
-
-        # Verifica se é um diretório
+def load_known_people(directory):
+    """Carrega as faces conhecidas e armazena em uma lista de objetos KnownFace. E fazer o load dos encondings no array known_face_encodings"""
+    for user_folder in os.listdir(directory):
+        user_path = os.path.join(directory, user_folder)
+        
         if os.path.isdir(user_path):
             for filename in os.listdir(user_path):
                 if filename.lower().endswith((".jpg", ".jpeg", ".png")):
                     file_path = os.path.join(user_path, filename)
-
-                    # Carrega a imagem
                     image = face_recognition.load_image_file(file_path)
-
-                    # Extrai os encodings da face (considera apenas a primeira face encontrada)
                     encodings = face_recognition.face_encodings(image)
+                    
                     if encodings:
-                        known_face_encodings.append(encodings[0])
-
-                        # Usa o nome da imagem como identificação do usuário
                         person_name = os.path.splitext(filename)[0]
-                        known_face_names.append(person_name)
-
-                        # Carrega a imagem com OpenCV
-                        known_face_images.append(cv2.imread(file_path))
-
-    return known_face_encodings, known_face_names, known_face_images
-
-# Carrega os encodings faciais e nomes dos usuários
-known_face_encodings, known_face_names, known_face_images = load_face_encodings(USERS_DIRECTORY)
+                        persons.append(Person(
+                            name=person_name,
+                            encoding=encodings[0],
+                            image=cv2.imread(file_path),
+                        ))
+                        known_face_encodings.append(encodings[0])
 
 # Inicializa a webcam
 video_capture = cv2.VideoCapture(0)
@@ -122,8 +100,8 @@ while True:
                         best_match_index = matches.index(True)
 
                         # Mostra a foto da pessoa conhecida
-                        person_image = known_face_images[best_match_index]
-                        person_name = known_face_names[best_match_index]
+                        person_image = [person.image for person, match in zip(persons, matches) if match]
+                        person_name = [person.name for person, match in zip(persons, matches) if match]
 
                         person_image = cv2.resize(person_image, (square_size, square_size))
 
@@ -142,6 +120,7 @@ while True:
                         cv2.imshow("Webcam", frame)
                         cv2.waitKey(4000)
                     else:
+
                         cv2.putText(frame, "Pessoa nao conhecida", (10, square_size + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
                         cv2.putText(frame, f"Age: {age}", (10, square_size + 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
                         cv2.putText(frame, f"Gender: {gender}", (10, square_size + 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
