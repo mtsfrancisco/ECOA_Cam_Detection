@@ -13,16 +13,18 @@ class UserImageManager:
 
     def add_user_local(self, user_data, user_id):
         """
-        Add a user to Firebase with their image stored locally.
-        Used when a new user is being made
-        -> There has to be an image of the user being made in the temp_user folder!!!
+            Add a user to Firebase with their image stored locally.
+            Used when a new user is being made
+            -> There has to be an image of the user being made in the temp_user folder!!!
         
         Args:
             name (str): The user's name.
+            user_data (dict): The user's data.
             user_id (str, optional): The user ID.
         
         Returns:
             str: The generated user ID.
+            -> Used to confirm that the user was added
         """
         
         image_filename = self._find_first_image(self.temp_dir)
@@ -64,6 +66,7 @@ class UserImageManager:
         
         Returns:
             str: The user ID.
+            -> Used to confirm that the user was added
         """
         
         # Creating 6 digit id
@@ -84,7 +87,7 @@ class UserImageManager:
         # Direct to users folder
         user_folder = os.path.join(self.users_dir, user_id)
         if not os.path.exists(user_folder):
-            raise FileNotFoundError(f"Error looking for temporary folder: {user_folder}")
+            raise FileNotFoundError(f"Error looking for {user_id}'s folder")
         
         # Find image and data for user and send to database
         image_filename = self._find_first_image(user_folder)
@@ -117,23 +120,30 @@ class UserImageManager:
             'user_id': user_id,
         }
 
-        # Adding locally than adding image info for firebase
-        self.add_user_local(user_data, user_id)
-        user_folder = os.path.join(self.users_dir, user_id)
-        if not os.path.exists(user_folder):
-            raise FileNotFoundError(f"Error looking for temporary folder: {user_folder}")
-        
-        # Find image and data for user and send to database
-        image_filename = self._find_first_image(user_folder)
+        try:
+            # Create locally
+            self.add_user_local(user_data, user_id)
 
-        # Adds user to firebase
-        if image_filename:
-            image_path = os.path.join(user_folder, image_filename)
-            base64_image = ImageConversions.image_to_base64(image_path)
-            user_data['image_64'] = base64_image
-            confirmation_id = update_user(user_id, user_data)
+            # Direct to users folder
+            user_folder = os.path.join(self.users_dir, user_id)
+            if not os.path.exists(user_folder):
+                raise FileNotFoundError(f"Error looking for {user_id}'s folder")
+            
+            # Find image and data for user and send to database
+            image_filename = self._find_first_image(user_folder)
 
-        return(confirmation_id)
+            # Adds user to firebase
+            if image_filename:
+                image_path = os.path.join(user_folder, image_filename)
+                base64_image = ImageConversions.image_to_base64(image_path)
+                user_data['image_64'] = base64_image
+                add_user(user_id, user_data)
+                return user_id
+            else:
+                raise FileNotFoundError(f"No image found in temporary folder: {user_folder}")
+        except Exception as e:
+            print(f"An error occurred while creating the user: {e}")
+            raise
 
 
     def delete_user(self, user_id):
