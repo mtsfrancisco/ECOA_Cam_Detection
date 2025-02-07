@@ -2,14 +2,14 @@ import os
 import shutil
 import random
 import json
-from src.firebase.fire import add_user, get_user, update_user, delete_user, get_all_users
+from src.firebase.fire import FirebaseManager
 from src.firebase.image_conversions import ImageConversions
 
 class UserImageManager:
     def __init__(self):
         self.users_dir = os.path.join(os.path.dirname(__file__), '..', 'local_database', 'users')
         self.temp_dir = os.path.abspath(os.path.join(self.users_dir, '..', 'temp_user'))
-
+        self.firebase_manager = FirebaseManager()
 
     def add_user_local(self, user_data, user_id):
         """
@@ -97,7 +97,7 @@ class UserImageManager:
             image_path = os.path.join(user_folder, image_filename)
             base64_image = ImageConversions.image_to_base64(image_path)
             user_data['image_64'] = base64_image
-            add_user(user_id, user_data)
+            self.firebase_manager.add_user(user_id, user_data)
             return user_id
         else:
             raise FileNotFoundError(f"No image found in temporary folder: {user_folder}")
@@ -137,7 +137,7 @@ class UserImageManager:
                 image_path = os.path.join(user_folder, image_filename)
                 base64_image = ImageConversions.image_to_base64(image_path)
                 user_data['image_64'] = base64_image
-                add_user(user_id, user_data)
+                self.firebase_manager.update_user(user_id, user_data)
                 return user_id
             else:
                 raise FileNotFoundError(f"No image found in temporary folder: {user_folder}")
@@ -154,7 +154,7 @@ class UserImageManager:
             user_id (str): The user ID.
         """
         # Delete user from Firebase
-        delete_user(user_id)
+        self.firebase_manager.delete_user(user_id)
 
         # Delete user from local storage
         user_folder = os.path.join(self.users_dir, user_id)
@@ -178,7 +178,7 @@ class UserImageManager:
         os.makedirs(self.users_dir, exist_ok=True)
 
         # Getting users from Firebase
-        users = get_all_users()
+        users = self.firebase_manager.get_all_users()
         user_ids = []
 
         # Iterating users to add locally
