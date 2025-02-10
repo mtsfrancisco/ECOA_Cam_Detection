@@ -201,7 +201,9 @@ class UserImageManager:
             
             # Save the user's image in the same folder
             image_path = os.path.join(user_folder, f"{user_data['name']}.jpg")
-            ImageConversions.base64_to_image(user_data['image_64'], image_path)
+            image_data = ImageConversions.base64_to_image(user_data['image_64'], image_path)
+            with open(image_path, "wb") as output_file:
+                output_file.write(image_data)
             user_ids.append(user_id)
         
         return "Successfully recovered the following ids: " + str(user_ids)
