@@ -16,6 +16,7 @@ class UserImageManager:
             Add a user to Firebase with their image stored locally.
             Used when a new user is being made
             -> There has to be an image of the user being made in the temp_user folder!!!
+            -> Meant to be used by other functions
         
         Args:
             name (str): The user's name.
@@ -23,8 +24,7 @@ class UserImageManager:
             user_id (str, optional): The user ID.
         
         Returns:
-            str: The generated user ID.
-            -> Used to confirm that the user was added
+            str: Message indicating that the user was created successfully.
         """
         
         image_filename = self._find_first_image(self.temp_dir)
@@ -65,8 +65,8 @@ class UserImageManager:
             user_id (str, optional): The user ID.
         
         Returns:
-            str: The user ID.
-            -> Used to confirm that the user was added
+            str: Message indicating that the user was created successfully.
+            -> Output of file is at users folder
         """
         
         # Creating 6 digit id
@@ -106,11 +106,15 @@ class UserImageManager:
         """
         Update a user's information and/or image in Firebase.
         -> Needs an image in the temp_user folder!!!
+
         Args:
             user_id (str): The user ID.
             name (str, optional): The user's new name.
             last_name (str, optional): The user's new last name.
             gender (str, optional): The user's new
+
+        Returns:
+            str: Message indicating that the user was updated successfully.
         """
 
         user_data = {
@@ -152,6 +156,9 @@ class UserImageManager:
 
         Args:
             user_id (str): The user ID.
+        
+        Returns:
+            str: Message indicating that the user was deleted successfully.
         """
         # Delete user from Firebase
         self.firebase_manager.delete_user(user_id)
@@ -160,6 +167,7 @@ class UserImageManager:
         user_folder = os.path.join(self.users_dir, user_id)
         if os.path.exists(user_folder):
             shutil.rmtree(user_folder)
+            return f"User {user_id} deleted successfully."
         else:
             raise FileNotFoundError(f"User folder not found: {user_folder}")
 
