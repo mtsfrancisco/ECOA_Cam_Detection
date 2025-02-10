@@ -6,7 +6,13 @@ from firebase_admin import credentials, db
 # Gear icon > Project settings > Service accounts > Generate new private key
 # Save the file in the same directory as this file > Filename: serviceAccountKey.json
 
+
 class FirebaseManager:
+    '''
+    Class to manage Firebase operations.
+
+    --- Do not touch anything in this file ---
+    '''
     def __init__(self):
         service_account_path = os.path.join(os.path.dirname(__file__), 'serviceAccountKey.json')
         cred = credentials.Certificate(service_account_path)
