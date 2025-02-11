@@ -173,7 +173,6 @@ try:
 except Exception as e:
     print(f"Ocorreu um erro ao excluir o arquivo: {e}")
 
-
 # Libera a webcam e fecha as janelas
 video_capture.release()
 cv2.destroyAllWindows()
