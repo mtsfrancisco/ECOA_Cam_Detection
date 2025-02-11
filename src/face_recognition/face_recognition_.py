@@ -106,8 +106,9 @@ while True:
                     face_encoding = face_encodings[0]
 
                     # Compara com as faces conhecidas
-                    matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
+                    matches = face_recognition.compare_faces(known_face_encodings, face_encoding, tolerance=0.8)
                     face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+                    print(f"Distâncias: {face_distances}")
 
                     if any(matches):
                         # Identifica a face com menor distância
@@ -160,7 +161,6 @@ while True:
     # Verifica se a tecla 'q' foi pressionada para sair
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-
 
 tempo_roi = "temp_roi.jpg"
 try:
