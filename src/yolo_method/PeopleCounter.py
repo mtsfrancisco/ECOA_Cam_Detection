@@ -1,222 +1,160 @@
-import sys
-import os
 import cv2
-import pandas as pd
-import numpy as np
-from ultralytics import YOLO
-from tkinter import Tk
-from tkinter.filedialog import askopenfilename
+import face_recognition
+import os
+import time
+from deepface import DeepFace
+import json
 
-# Include path to the utils folder
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'utils')))
-current_dir = os.path.dirname(os.path.abspath(__file__))
+class Person:
+    def __init__(self, name, encoding, image):
+        self.name = name
+        self.encoding = encoding
+        self.image = image
 
-from tracker import Tracker
-from video_stream import VideoStream
+class PersonsLoader:
+    def __init__(self, users_directory):
+        self.users_directory = users_directory
+        self.persons = []
+        self.known_face_encodings = []
+        self.load_known_people()
 
-# Define model here
-model_str = "yolo11m.pt"
+    def load_known_people(self):
+        """Carrega as faces conhecidas e armazena em uma lista de objetos Person."""
+        for user_folder in os.listdir(self.users_directory):
+            user_path = os.path.join(self.users_directory, user_folder)
+            if os.path.isdir(user_path):
+                json_file = None
+                for filename in os.listdir(user_path):
+                    if filename.lower().endswith(".json"):
+                        json_file = os.path.join(user_path, filename)
+                        break
+                if json_file:
+                    with open(json_file, "r") as f:
+                        person_data = json.load(f)
+                        person_name = person_data.get("name", user_folder)
+                        person_last_name = person_data.get("last_name", user_folder)
 
-# To bundle the model with the executable
-if hasattr(sys, '_MEIPASS'):
-    model_path = os.path.join(sys._MEIPASS, model_str)
-else:
-    model_path = os.path.join(current_dir, '..', 'yolo_models', model_str)
+                for filename in os.listdir(user_path):
+                    if filename.lower().endswith((".jpg", ".jpeg", ".png")):
+                        file_path = os.path.join(user_path, filename)
+                        image = face_recognition.load_image_file(file_path)
+                        encodings = face_recognition.face_encodings(image)
 
-class PeopleCounter:
-    def __init__(self, video_path):
-        # Test current directory
-        print("Current directory:", current_dir)
+                        if encodings:
+                            self.persons.append(Person(
+                                name=f"{person_name} {person_last_name}",
+                                encoding=encodings[0],
+                                image=cv2.imread(file_path),
+                            ))
+                            self.known_face_encodings.append(encodings[0])
 
-        # Start yolo model and video path
-        self.model = YOLO(model_path, verbose=True)
-        self.tracker = Tracker()
-        self.video_stream = VideoStream(video_path)
-        
-        # Define entering and exting areas
-        self.current_points = []  # Pontos do quadrilátero em criação
-        self.area1 = []  # Área 1 - primeiro quadriláteros
-        self.area2 = []  # Área 2 - segundo quadriláteros
-        self.drawing = False  # Indica se estamos em modo interativo
+        print("Pessoas carregadas:")                  
+        for person in self.persons:
+            print(person.name)
+        print("====================================")
 
-        #Areas 1 and 2 for the TestVideo.mp4
-        #self.area1 = [(0, 600), (1920, 600), (1920, 560), (0, 560)]
-        #self.area2 = [(0, 480), (1920, 480), (1920, 520), (0, 520)]
-        
-        # Start counters and lists of people entering and exiting
-        self.people_entering = {}
-        self.people_exiting = {}
-        self.entering = set()
-        self.exiting = set()
-        self.frame_skip = 2  # Number of frames to skip
-        self.frame_count = 0
+class WebcamFaceRecognizer:
+    def __init__(self, face_recognizer, wait_time=5):
+        self.face_recognizer = face_recognizer
+        self.wait_time = wait_time
+        self.last_check_time = time.time() - wait_time
+        self.video_capture = cv2.VideoCapture(0)
+        self.frame_width = int(self.video_capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+        self.frame_height = int(self.video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        self.square_size = 500
+        self.x_start = self.frame_width // 2 - self.square_size // 2
+        self.y_start = self.frame_height // 2 - self.square_size // 2
+        self.x_end = self.x_start + self.square_size
+        self.y_end = self.y_start + self.square_size
 
-    def mouse_callback(self, event, x, y, flags, param):
-        """Callback for mouse events."""
-        if event == cv2.EVENT_LBUTTONDOWN:  # Left button click
-            self.current_points.append((x, y))  # Add the clicked point
-            if len(self.current_points) == 4:  # Finalize the quadrilateral after 4 points
-                if len(self.area1) < 1:  # If there is no quadrilateral in area1
-                    self.area1.append(self.current_points.copy())
-                else:  # When area1 is filled, fill area2
-                    self.area2.append(self.current_points.copy())
-                self.current_points = []  # Reset points for the next quadrilateral
-                self.drawing = False
+    def draw_square(self, frame):
+        """Desenha um quadrado no meio da tela."""
+        cv2.rectangle(frame, (self.x_start, self.y_start), (self.x_end, self.y_end), (0, 255, 0), 2)
 
-        elif event == cv2.EVENT_MOUSEMOVE and len(self.current_points) > 0:  # Mouse movement
-            self.drawing = True  # Activate interactive mode
-            self.current_point = (x, y)  # Update the current mouse point
+    def analyze_face(self, roi):
+        """Analisa a face na região de interesse (ROI) usando DeepFace."""
+        temp_roi_path = "temp_roi.jpg"
+        cv2.imwrite(temp_roi_path, roi)
+        try:
+            analysis = DeepFace.analyze(img_path=temp_roi_path, actions=["age", "gender", "race", "emotion"], enforce_detection=False)
+            if analysis:
+                return analysis[0]
+        except Exception as e:
+            print(f"Erro ao analisar a face: {e}")
+        finally:
+            if os.path.exists(temp_roi_path):
+                os.remove(temp_roi_path)
+        return None
 
-    def process_frame(self, frame):
-        # Draw entrance and exit areas
-        cv2.polylines(frame, [np.array(self.area1, np.int32)], True, (255, 0, 0), 2)
-        cv2.polylines(frame, [np.array(self.area2, np.int32)], True, (255, 0, 0), 2)
+    def recognize_face(self, rgb_roi):
+        """Reconhece a face na região de interesse (ROI) usando face_recognition."""
+        face_encodings = face_recognition.face_encodings(rgb_roi)
+        if face_encodings:
+            face_encoding = face_encodings[0]
+            matches = face_recognition.compare_faces(self.face_recognizer.known_face_encodings, face_encoding, tolerance=0.8)
+            face_distances = face_recognition.face_distance(self.face_recognizer.known_face_encodings, face_encoding)
 
-        # Add people count to the frame
-        self.display_count(frame)
+            if any(matches):
+                best_match_index = matches.index(True)
+                return self.face_recognizer.persons[best_match_index]
+        return None
 
-        # Skip frames to improve performance
-        # self.frame_count += 1
-        # if self.frame_count % self.frame_skip != 0:
-        #     return
+    def display_person_info(self, frame, person, analysis):
+        """Exibe informações da pessoa reconhecida no frame."""
+        person_image = cv2.resize(person.image, (self.square_size, self.square_size))
+        frame[0:self.square_size, 0:self.square_size] = person_image
+        frame[0:self.square_size, self.square_size:self.square_size * 2] = cv2.resize(frame[self.y_start:self.y_end, self.x_start:self.x_end], (self.square_size, self.square_size))
+        cv2.putText(frame, person.name, (10, self.square_size + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        print(f"Pessoa reconhecida: {person.name}")
 
-        # Detect objects in the frame with a confidence threshold
-        results = self.model.predict(frame, conf=0.5, classes=[0])
-        bbox_data = results[0].boxes.data
-        bbox_df = pd.DataFrame(bbox_data).astype("float")
-        
-        # List to store the coordinates of the bounding boxes
-        bbox_list = []
-        for _, row in bbox_df.iterrows():
-            x1, y1, x2, y2, _, label = map(int, row)
-            if label == 0: # Only people
-                bbox_list.append([x1, y1, x2, y2])
-        
-        # Update the IDs of the tracked objects
-        bbox_ids = self.tracker.update(bbox_list)
-        for bbox in bbox_ids:
-            x3, y3, x4, y4, obj_id = bbox
-            self.handle_entrance_exit(frame, x3, y3, x4, y4, obj_id)
-
-    def handle_entrance_exit(self, frame, x3, y3, x4, y4, obj_id):
-        # Check if the object is in the defined areas
-        if cv2.pointPolygonTest(np.array(self.area2, np.int32), (x4, y4), False) >= 0:
-            self.people_entering[obj_id] = (x4, y4)
-            cv2.rectangle(frame, (x3, y3), (x4, y4), (0, 255, 0), 2)
-            cv2.putText(frame, str(obj_id), (x3, y3), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
-        
-        # Count people entering (descendo no video)
-        if obj_id in self.people_entering:
-            if cv2.pointPolygonTest(np.array(self.area1, np.int32), (x4, y4), False) >= 0:
-                cv2.rectangle(frame, (x3, y3), (x4, y4), (0, 255, 0), 2)
-                cv2.circle(frame, (x4, y4), 5, (255, 0, 255), -1)
-                cv2.putText(frame, str(obj_id), (x3, y3), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
-                self.entering.add(obj_id)
-        
-        if cv2.pointPolygonTest(np.array(self.area1, np.int32), (x4, y4), False) >= 0:
-            self.people_exiting[obj_id] = (x4, y4)
-            cv2.rectangle(frame, (x3, y3), (x4, y4), (0, 255, 0), 2)
-            cv2.putText(frame, str(obj_id), (x3, y3), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
-        
-        # Count people exiting (subindo no video)
-        if obj_id in self.people_exiting:
-            if cv2.pointPolygonTest(np.array(self.area2, np.int32), (x4, y4), False) >= 0:
-                cv2.rectangle(frame, (x3, y3), (x4, y4), (0, 255, 0), 2)
-                cv2.circle(frame, (x4, y4), 5, (255, 0, 255), -1)
-                cv2.putText(frame, str(obj_id), (x3, y3), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
-                self.exiting.add(obj_id)
-
-    def display_count(self, frame):
-        # Displays the count of people entering and leaving
-        people_in = len(self.entering)
-        people_out = len(self.exiting)
-        cv2.putText(frame, "Subindo: ", (0, 80), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 0, 255), 2)
-        cv2.putText(frame, str(people_in), (150, 80), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 0, 255), 2)
-        cv2.putText(frame, "Descendo: ", (0, 140), cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 0, 255), 2)
-        cv2.putText(frame, str(people_out), (150, 140), cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 0, 255), 2)
+    def display_unknown_person_info(self, frame, analysis):
+        """Exibe informações de uma pessoa não reconhecida no frame."""
+        cv2.putText(frame, "Pessoa não conhecida", (10, self.square_size + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(frame, f"Age: {analysis['age']}", (10, self.square_size + 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(frame, f"Gender: {analysis['dominant_gender']}", (10, self.square_size + 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(frame, f"Race: {analysis['dominant_race']}", (10, self.square_size + 140), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(frame, f"Emotion: {analysis['dominant_emotion']}", (10, self.square_size + 170), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        print("Pessoa não reconhecida")
 
     def run(self):
-        # Create window and set the mouse callback
-        ret, frame = self.video_stream.read()
-
-        if not ret:
-            print("Error reading video")
-            self.video_stream.release()
-
-        """Draw points window."""
-        cv2.namedWindow("Quadrilateral Drawer")
-        cv2.setMouseCallback("Quadrilateral Drawer", self.mouse_callback)
-        
-
+        """Executa o loop principal de detecção e reconhecimento de faces."""
         while True:
-            temp_img = frame.copy()  # Copy first frame
-
-            # Draw area 1 points
-            for quadrilateral in self.area1:
-                for i in range(4):
-                    cv2.line(temp_img, quadrilateral[i], quadrilateral[(i + 1) % 4], (0, 0, 255), 2)
-
-            # Draw area 2 points
-            for quadrilateral in self.area2:
-                for i in range(4):
-                    cv2.line(temp_img, quadrilateral[i], quadrilateral[(i + 1) % 4], (0, 255, 0), 2)
-
-            # Draw fixed points 
-            for point in self.current_points:
-                cv2.circle(temp_img, point, 5, (0, 0, 255), -1)
-
-            # Draw fixed lines
-            if len(self.current_points) > 1:
-                for i in range(len(self.current_points) - 1):
-                    cv2.line(temp_img, self.current_points[i], self.current_points[i + 1], (0, 0, 255), 2)
-
-            # Draw iteractive lines
-            if self.drawing and len(self.current_points) < 4:
-                cv2.line(temp_img, self.current_points[-1], self.current_point, (0, 255, 0), 2)
-                if len(self.current_points) == 3:  # Line from the first to the third point while drawing the fourth
-                    cv2.line(temp_img, self.current_points[0], self.current_point, (0, 255, 0), 2)
-
-            cv2.imshow("Quadrilateral Drawer", temp_img)
-
-            # Exit when the ESC key is pressed
-            key = cv2.waitKey(1)
-            if key == 27 or len(self.area1) == 1 and len(self.area2) == 1:  # Limit of two quadrilaterals
-                break
-
-        print("Pontos a area 1: ", self.area1)
-        print("Pontos a area 2: ", self.area2)
-
-        while True:
-            ret, frame = self.video_stream.read()
+            ret, frame = self.video_capture.read()
             if not ret:
                 break
-            
-            self.process_frame(frame)
-            self.video_stream.display(frame, window_name="RGB")
-            if cv2.waitKey(1) & 0xFF == ord("q"):
+
+            self.draw_square(frame)
+
+            if time.time() - self.last_check_time >= self.wait_time:
+                roi = frame[self.y_start:self.y_end, self.x_start:self.x_end]
+                rgb_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2RGB)
+
+                analysis = self.analyze_face(roi)
+                if analysis:
+                    person = self.recognize_face(rgb_roi)
+                    if person:
+                        self.display_person_info(frame, person, analysis)
+                    else:
+                        self.display_unknown_person_info(frame, analysis)
+
+                    cv2.imshow("Webcam", frame)
+                    cv2.waitKey(4000)
+
+                self.last_check_time = time.time()
+
+            cv2.imshow("Webcam", frame)
+
+            if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-        self.video_stream.release()
 
+        self.video_capture.release()
+        cv2.destroyAllWindows()
 
-def get_video_path():
-    # Try to open a window for the user to select the video
-    Tk().withdraw()  # Hide the main Tkinter window
-    user_input = askopenfilename(title="Select video file", filetypes=[("Video file", "*.mp4")])
-    
-    if user_input:  # If the user selects a file, use it
-        return user_input
-    
-    # Otherwise, use the embedded path
-    if hasattr(sys, '_MEIPASS'):  # When executed as an executable
-        return 0
-    
-    # When executed as a Python script
-    return 0
+# Caminho para a pasta "users"
+CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+USERS_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "..", "local_database", "users")
 
-# Video path
-video_path = get_video_path()
-
-# Instance and run the people counter
-people_counter = PeopleCounter(video_path)
-people_counter.run()
+# Inicializa e executa o detector de faces
+face_recognizer = PersonsLoader(USERS_DIRECTORY)
+webcam_detector = WebcamFaceRecognizer(face_recognizer)
+webcam_detector.run()

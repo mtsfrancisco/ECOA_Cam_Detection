@@ -162,6 +162,11 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
+# Libera a webcam e fecha as janelas
+video_capture.release()
+cv2.destroyAllWindows()
+
+# Exclui a imagem temporária
 tempo_roi = "temp_roi.jpg"
 try:
     # Verifica se o arquivo existe
@@ -173,6 +178,3 @@ try:
 except Exception as e:
     print(f"Ocorreu um erro ao excluir o arquivo: {e}")
 
-# Libera a webcam e fecha as janelas
-video_capture.release()
-cv2.destroyAllWindows()
