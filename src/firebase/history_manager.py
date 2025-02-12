@@ -21,15 +21,13 @@ class HistoryManager:
                 - status (str): Entering/Leaving.
         
         Returns:
-            str: Message indicating that the history was added successfully.
+            str: Message indicating whether the history was added successfully.
         '''
-
-        # When questioning whether or not the code should really
-        # have yet another file with the same function, name, and parameters
-        # it's important to consider what was reasearched called the ... 
-        # ... Single Responsibility Principle and also note that we want to only
-        # reference the certificate a singular time within the codebase
-        self.firebase_manager.add_history(user_id, history_data)
+        success = self.firebase_manager.add_history(user_id, history_data)
+        if success:
+            return "History added successfully"
+        else:
+            return "Failed to add history"
 
     def get_user_history(self, user_id):
         '''
@@ -39,11 +37,14 @@ class HistoryManager:
             user_id (str): The user ID.
         
         Returns:
-            dict: The history of the user.
+            dict: The history of the user, or a message indicating failure.
         '''
+        history = self.firebase_manager.get_user_history(user_id)
+        if history is not None:
+            return history
+        else:
+            return "Failed to retrieve history"
 
-        return self.firebase_manager.get_user_history(user_id)
-    
     def delete_user_history(self, user_id):
         '''
         Delete all history of a user from Firebase.
@@ -53,7 +54,10 @@ class HistoryManager:
             user_id (str): The user ID.
 
         Returns:
-            str: Message indicating that the history was deleted successfully.
+            str: Message indicating whether the history was deleted successfully.
         '''
-
-        self.firebase_manager.delete_user_history(user_id)
+        success = self.firebase_manager.delete_user_history(user_id)
+        if success:
+            return "History deleted successfully"
+        else:
+            return "Failed to delete history"
