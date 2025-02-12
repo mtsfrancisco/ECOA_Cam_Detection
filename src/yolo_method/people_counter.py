@@ -11,13 +11,13 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import QTimer, Qt, pyqtSignal, QPoint
 from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen
 
-# Imports locais
+# Local imports
 from tracker import Tracker
 from video_stream import VideoStream
 from ultralytics import YOLO
 
 ##############################################################################
-# Ajuste do caminho do modelo
+# Model path adjustment
 ##############################################################################
 model_str = "yolov8m.pt"
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -25,21 +25,21 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 if hasattr(sys, '_MEIPASS'):
     model_path = os.path.join(sys._MEIPASS, model_str)
 else:
-    # Se o modelo estiver em "yolo_models" dentro de "yolo_method":
+    #If the model is located in ÿolo_models" inside "yolo_method" :
     model_path = os.path.join(current_dir, "yolo_models", model_str)
 
 print("DEBUG: model_path =", model_path)
 
 
 ##############################################################################
-# Classe PeopleCounter (YOLO + Tracker + contagem)
+# Class PeopleCounter (YOLO + Tracker + counting)
 ##############################################################################
 class PeopleCounter:
     def __init__(self, model_path):
         self.model = YOLO(model_path, verbose=True)
         self.tracker = Tracker()
 
-        # Dicionários e conjuntos para contagem
+        # Dictionaries for counting
         self.people_entering = {}
         self.people_exiting = {}
         self.entering = set()
@@ -47,7 +47,7 @@ class PeopleCounter:
 
     def process_frame(self, frame, area1, area2):
         """
-        Recebe frame (BGR), áreas (area1, area2) e retorna frame processado.
+        Receives a frame (BGR), areas (area1, area2) and returns processed frame.
         """
         results = self.model.predict(frame, conf=0.5, classes=[0])
         if len(results) == 0:
@@ -61,26 +61,26 @@ class PeopleCounter:
             if label == 0:
                 bbox_list.append([x1, y1, x2, y2])
 
-        # Atualiza tracker
+        # Updates tracker
         bbox_ids = self.tracker.update(bbox_list)
 
-        # Desenha polígonos para ilustrar
+        # Draws polygons for ilustration
         for quad in area1:
             cv2.polylines(frame, [np.array(quad, np.int32)], True, (255, 0, 0), 2)
         for quad in area2:
             cv2.polylines(frame, [np.array(quad, np.int32)], True, (0, 255, 0), 2)
 
-        # Verifica entradas/saídas
+        # Verifies in/out 
         for bbox in bbox_ids:
             x3, y3, x4, y4, obj_id = bbox
             self.handle_entrance_exit(frame, x3, y3, x4, y4, obj_id, area1, area2)
 
-        # Desenha contagens
+        # Draws counting 
         self.display_count(frame)
         return frame
 
     def handle_entrance_exit(self, frame, x3, y3, x4, y4, obj_id, area1, area2):
-        # Verifica área2 → people_entering
+        # Verifies area2 → people_entering
         for quad in area2:
             if cv2.pointPolygonTest(np.array(quad, np.int32), (x4, y4), False) >= 0:
                 self.people_entering[obj_id] = (x4, y4)
@@ -89,7 +89,7 @@ class PeopleCounter:
                             cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
                 break
 
-        # Se está em people_entering, checa se alcançou área1
+        # If it is in people_entering, check if reaches area1
         if obj_id in self.people_entering:
             for quad in area1:
                 if cv2.pointPolygonTest(np.array(quad, np.int32), (x4, y4), False) >= 0:
@@ -100,7 +100,7 @@ class PeopleCounter:
                     self.entering.add(obj_id)
                     break
 
-        # Verifica área1 → people_exiting
+        # Verifies area1 → people_exiting
         for quad in area1:
             if cv2.pointPolygonTest(np.array(quad, np.int32), (x4, y4), False) >= 0:
                 self.people_exiting[obj_id] = (x4, y4)
@@ -109,7 +109,7 @@ class PeopleCounter:
                             cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
                 break
 
-        # Se está em people_exiting, checa se alcançou área2
+        # If it is in people_exiting, check if reaches área2
         if obj_id in self.people_exiting:
             for quad in area2:
                 if cv2.pointPolygonTest(np.array(quad, np.int32), (x4, y4), False) >= 0:
@@ -135,16 +135,16 @@ class PeopleCounter:
 
 
 ##############################################################################
-# VideoWidget - para desenhar as áreas no frame estático
+# VideoWidget - drawing the static frame 
 ##############################################################################
 class VideoWidget(QLabel):
-    areas_done_signal = pyqtSignal()  # Emite quando ambas as áreas (area1, area2) estão definidas
+    areas_done_signal = pyqtSignal()  # Emits when both areas (area1, area2) are defined
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setAlignment(Qt.AlignCenter)
 
-        # Armazena polígonos
+        # Stores polygons
         self.area1 = []
         self.area2 = []
 
@@ -202,19 +202,19 @@ class VideoWidget(QLabel):
         if self.pixmap():
             painter.drawPixmap(0, 0, self.pixmap())
 
-        # Desenha area1 em vermelho
+        # Draws area1 in red
         pen_area1 = QPen(Qt.red, 2, Qt.SolidLine)
         painter.setPen(pen_area1)
         for quadrilateral in self.area1:
             self.draw_polygon(painter, quadrilateral)
 
-        # Desenha area2 em verde
+        # Draws area2 in green
         pen_area2 = QPen(Qt.green, 2, Qt.SolidLine)
         painter.setPen(pen_area2)
         for quadrilateral in self.area2:
             self.draw_polygon(painter, quadrilateral)
 
-        # Desenha polígono atual (azul)
+        # Draws current polygon  (blue)
         pen_current = QPen(Qt.blue, 2, Qt.SolidLine)
         painter.setPen(pen_current)
         if len(self.current_points) > 0:
@@ -237,12 +237,12 @@ class VideoWidget(QLabel):
 
 
 ##############################################################################
-# Página 0: StartWidget (tela inicial com dois botões)
+# Page 0: StartWidget (Starting page)
 ##############################################################################
 class StartWidget(QWidget):
     """
-    Simplesmente exibe dois botões: "Abrir Vídeo" e "Abrir Câmera".
-    Emite sinais para informar ao MainWindow qual opção o usuário escolheu.
+    It simply displays two buttons: "Open Video" and "Open Camera". (For now)
+    Emits signals to tell the MainWindow which option the user has chosen.
     """
     open_video_signal = pyqtSignal()
     open_camera_signal = pyqtSignal()
@@ -268,25 +268,25 @@ class StartWidget(QWidget):
 
 
 ##############################################################################
-# Página 1: VideoPage (onde processamos vídeo/câmera)
+# Page 1: VideoPage (processing video/cam)
 ##############################################################################
 class VideoPage(QWidget):
     """
-    Contém o VideoWidget e um botão de "Voltar" para retornar à tela inicial.
-    Lógica:
-      - Ao abrir vídeo/câmera, lê só 1 frame e exibe estático.
-      - Define áreas (VideoWidget).
-      - Quando áreas concluídas, inicia o QTimer para rodar o vídeo todo.
-      - Ao fechar ou clicar em "Voltar", paramos o vídeo e liberamos.
+    Contains the VideoWidget and a "Back" button to return to the home screen.
+    Logic:
+      - When opening video/camera, it only reads 1 frame and displays static.
+      - Defines areas (VideoWidget).
+      - When areas completed, start QTimer to play the entire video.
+      - When closing or clicking "Back", we stop the video and release it.
     """
-    back_to_start_signal = pyqtSignal()  # emitido ao clicar em "Voltar"
+    back_to_start_signal = pyqtSignal()  # emited by clicking "Voltar"
 
     def __init__(self):
         super().__init__()
         main_layout = QVBoxLayout()
         self.setLayout(main_layout)
 
-        # Botão Voltar
+        # Back Button
         btn_back = QPushButton("Voltar")
         btn_back.clicked.connect(self.on_back_clicked)
         main_layout.addWidget(btn_back)
@@ -299,29 +299,29 @@ class VideoPage(QWidget):
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_frame)
 
-        # Instancia PeopleCounter
+        # PeopleCounter instance
         self.people_counter = PeopleCounter(model_path)
 
-        # Variável de fluxo de vídeo/câmera
+        # Video/camera stream variable
         self.video_stream = None
 
-        # Conecta sinal de áreas definidas
+        # Connects signal from defined areas
         self.video_widget.areas_done_signal.connect(self.start_video_processing)
 
     def on_back_clicked(self):
         """
-        Usuário clicou em "Voltar" → paramos o timer, liberamos o vídeo e emitimos o sinal.
+        User clicked "Back" → we stopped the timer, released the video and output the signal.
         """
         self.close_video()
         self.back_to_start_signal.emit()
 
     def open_video_file(self, file_path=None):
         """
-        Abre um arquivo de vídeo (caso 'file_path' seja dado).
-        Caso seja None, mostra diálogo (opcional).
+       Opens a video file (if 'file_path' is given).
+        If None, it shows dialog (optional).
         """
         if file_path is None:
-            # Exemplo se quiser abrir diálogo aqui
+            # Example if you want to open a dialogue here
             pass
         try:
             self.video_stream = VideoStream(file_path)
@@ -332,7 +332,7 @@ class VideoPage(QWidget):
 
     def open_camera(self):
         """
-        Abre câmera (índice 0).
+        Open camera (index 0).
         """
         try:
             self.video_stream = VideoStream(0)
@@ -343,8 +343,8 @@ class VideoPage(QWidget):
 
     def show_first_frame(self):
         """
-        Lê só 1 frame e exibe no video_widget. 
-        Fica estático até o usuário desenhar as áreas.
+        Reads only 1 frame and displays it in the video_widget. 
+        It remains static until the user draws the areas.
         """
         if not self.video_stream:
             return
@@ -357,7 +357,7 @@ class VideoPage(QWidget):
 
     def start_video_processing(self):
         """
-        Chamado quando as áreas são definidas. Inicia o loop (timer) para processar frames.
+        Called when areas are defined. Starts the loop (timer) to process frames.
         """
         if self.video_stream:
             self.timer.start(30)  # ~33 FPS
@@ -370,7 +370,7 @@ class VideoPage(QWidget):
             return
         ret, frame = self.video_stream.read()
         if not ret:
-            # Fim do vídeo
+            # End of video
             self.timer.stop()
             return
 
@@ -382,7 +382,7 @@ class VideoPage(QWidget):
 
     def close_video(self):
         """
-        Para o timer e libera recursos do vídeo/câmera.
+        Stops the timer and frees up video/camera resources.
         """
         self.timer.stop()
         if self.video_stream:
@@ -391,39 +391,39 @@ class VideoPage(QWidget):
 
 
 ##############################################################################
-# MainWindow - Gerencia as duas páginas via QStackedWidget
+# MainWindow - Manages both pages via QStackedWidget
 ##############################################################################
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Contador de Pessoas (PyQt) - Fullscreen + Retorno")
 
-        # StackedWidget com 2 páginas: start_widget (página 0) e video_page (página 1)
+        # StackedWidget with 2 pages: start_widget (page 0) and video_page (page 1)
         self.stacked = QStackedWidget()
         self.setCentralWidget(self.stacked)
 
-        # Página 0: tela inicial
+        # Page 0: Home screen
         self.start_widget = StartWidget()
         self.stacked.addWidget(self.start_widget)
 
-        # Página 1: tela de vídeo
+        # Page 1: Video Screen
         self.video_page = VideoPage()
         self.stacked.addWidget(self.video_page)
 
-        # Sinais da página inicial
+        # Home page signals
         self.start_widget.open_video_signal.connect(self.on_open_video_clicked)
         self.start_widget.open_camera_signal.connect(self.on_open_camera_clicked)
 
-        # Sinal de "Voltar" na página de vídeo
+        # "Back" sign on video page
         self.video_page.back_to_start_signal.connect(self.on_back_to_start)
 
-        # Inicialmente mostra página 0
+        # Initially shows page 0
         self.stacked.setCurrentIndex(0)
 
     def on_open_video_clicked(self):
         """
-        Botão "Abrir Vídeo" da página inicial.
-        Abre diálogo, pega caminho do arquivo, vai para página 1 e abre o vídeo.
+        "Open Video" button on the home page.
+        Open dialog, get file path, go to page 1 and open the video.
         """
         options = QFileDialog.Options()
         file_path, _ = QFileDialog.getOpenFileName(
@@ -431,27 +431,27 @@ class MainWindow(QMainWindow):
             "Vídeos (*.mp4 *.avi *.mov);;Todos (*)", options=options
         )
         if file_path:
-            # Passamos para a página de vídeo
+            # We move to the video page
             self.stacked.setCurrentIndex(1)
             self.video_page.open_video_file(file_path)
 
     def on_open_camera_clicked(self):
         """
-        Botão "Abrir Câmera" da página inicial.
-        Vai para página 1 e abre webcam.
+        "Open Camera" button on the home page.
+        Go to page 1 and open webcam.
         """
         self.stacked.setCurrentIndex(1)
         self.video_page.open_camera()
 
     def on_back_to_start(self):
         """
-        Chamada quando o usuário clica em "Voltar" na página de vídeo.
-        Retorna para a página 0 (start_widget).
+        Called when the user clicks "Back" on the video page.
+        Returns to page 0 (start_widget).
         """
         self.stacked.setCurrentIndex(0)
 
     def closeEvent(self, event):
-        # Se estiver na página de vídeo, liberar
+        # If you are on the video page, release
         if self.stacked.currentIndex() == 1:
             self.video_page.close_video()
         event.accept()
@@ -459,9 +459,9 @@ class MainWindow(QMainWindow):
 def main():
     app = QApplication(sys.argv)
     window = MainWindow()
-    # Mostrar em tela cheia
+    # Show full screen
     window.showFullScreen()
-    # Se quiser só maximizado (barra de título visível):
+    # If you just want it maximized (title bar visible):
     # window.showMaximized()
 
     sys.exit(app.exec_())
