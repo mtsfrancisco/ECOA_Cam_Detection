@@ -98,7 +98,7 @@ class WebcamFaceDetector:
         """Exibe informações da pessoa reconhecida no frame."""
         person_image = cv2.resize(person.image, (self.square_size, self.square_size))
         frame[0:self.square_size, 0:self.square_size] = person_image
-        frame[0:self.square_size, self.square_size:self.square_size * 2] = cv2.cvtColor(cv2.resize(frame[self.y_start:self.y_end, self.x_start:self.x_end], (self.square_size, self.square_size)), cv2.COLOR_BGR2RGB)
+        frame[0:self.square_size, self.square_size:self.square_size * 2] = cv2.resize(frame[self.y_start:self.y_end, self.x_start:self.x_end], (self.square_size, self.square_size))
         cv2.putText(frame, person.name, (10, self.square_size + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         print(f"Pessoa reconhecida: {person.name}")
 
