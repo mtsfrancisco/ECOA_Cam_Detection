@@ -15,7 +15,7 @@ class Person:
         self.encoding = encoding
         self.image = image
 
-class FaceRecognizer:
+class known_people_loader:
     def __init__(self, users_directory):
         self.users_directory = users_directory
         self.persons = []
@@ -53,9 +53,9 @@ class FaceRecognizer:
                             ))
                             self.known_face_encodings.append(encodings[0])
 
-class WebcamFaceDetector:
-    def __init__(self, face_recognizer, wait_time=5):
-        self.face_recognizer = face_recognizer
+class cam_face_recognition:
+    def __init__(self, known_persons, wait_time=5):
+        self.known_persons = known_persons
         self.wait_time = wait_time
         self.last_check_time = time.time() - wait_time
         self.video_capture = cv2.VideoCapture(0)
@@ -90,13 +90,13 @@ class WebcamFaceDetector:
         """Reconhece a face na região de interesse (ROI) usando face_recognition."""
         if face_encodings:
             face_encoding = face_encodings[0]
-            matches = face_recognition.compare_faces(self.face_recognizer.known_face_encodings, face_encoding, tolerance=0.6)
-            face_distances = face_recognition.face_distance(self.face_recognizer.known_face_encodings, face_encoding)
+            matches = face_recognition.compare_faces(self.known_persons.known_face_encodings, face_encoding, tolerance=0.6)
+            face_distances = face_recognition.face_distance(self.known_persons.known_face_encodings, face_encoding)
             print(f"Distâncias: {face_distances}")
 
             if any(matches):
                 best_match_index = matches.index(True)
-                return self.face_recognizer.persons[best_match_index]
+                return self.known_persons.persons[best_match_index]
         return None
 
     def display_person_info(self, frame, person):
@@ -155,10 +155,9 @@ class WebcamFaceDetector:
 
 
 def main():
-    # Inicializa e executa o detector de faces
-    face_recognizer = FaceRecognizer(USERS_DIRECTORY)
-    webcam_detector = WebcamFaceDetector(face_recognizer)
-    webcam_detector.run()
+    known_persons = known_people_loader(USERS_DIRECTORY)
+    face_recognizer = cam_face_recognition(known_persons)
+    face_recognizer.run()
 
 if __name__ == "__main__":
     main()
