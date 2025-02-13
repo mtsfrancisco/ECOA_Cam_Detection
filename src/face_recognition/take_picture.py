@@ -2,7 +2,7 @@ import cv2
 import os
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
-people_directory = os.path.join(current_directory, "people")
+people_directory = os.path.join(current_directory, "pictures")
 
 # Inicializa a captura de vídeo da webcam
 cap = cv2.VideoCapture(0)
