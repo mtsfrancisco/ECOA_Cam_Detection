@@ -5,6 +5,10 @@ import time
 from deepface import DeepFace
 import json
 
+# Caminho para a pasta "users"
+CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+USERS_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "..", "local_database", "users")
+
 class Person:
     def __init__(self, name, encoding, image):
         self.name = name
@@ -20,6 +24,7 @@ class FaceRecognizer:
 
     def load_known_people(self):
         """Carrega as faces conhecidas e armazena em uma lista de objetos Person."""
+
         for user_folder in os.listdir(self.users_directory):
             user_path = os.path.join(self.users_directory, user_folder)
             if os.path.isdir(user_path):
@@ -104,7 +109,7 @@ class WebcamFaceDetector:
 
     def display_unknown_person_info(self, frame, analysis):
         """Exibe informações de uma pessoa não reconhecida no frame."""
-        cv2.putText(frame, "Pessoa não conhecida", (10, self.square_size + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(frame, "Pessoa nao conhecida", (10, self.square_size + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.putText(frame, f"Age: {analysis['age']}", (10, self.square_size + 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.putText(frame, f"Gender: {analysis['dominant_gender']}", (10, self.square_size + 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.putText(frame, f"Race: {analysis['dominant_race']}", (10, self.square_size + 140), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
@@ -148,11 +153,12 @@ class WebcamFaceDetector:
         self.video_capture.release()
         cv2.destroyAllWindows()
 
-# Caminho para a pasta "users"
-CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-USERS_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "..", "local_database", "users")
 
-# Inicializa e executa o detector de faces
-face_recognizer = FaceRecognizer(USERS_DIRECTORY)
-webcam_detector = WebcamFaceDetector(face_recognizer)
-webcam_detector.run()
+def main():
+    # Inicializa e executa o detector de faces
+    face_recognizer = FaceRecognizer(USERS_DIRECTORY)
+    webcam_detector = WebcamFaceDetector(face_recognizer)
+    webcam_detector.run()
+
+if __name__ == "__main__":
+    main()
