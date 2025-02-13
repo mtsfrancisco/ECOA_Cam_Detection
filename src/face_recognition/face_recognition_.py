@@ -90,7 +90,7 @@ class WebcamFaceDetector:
         """Reconhece a face na região de interesse (ROI) usando face_recognition."""
         if face_encodings:
             face_encoding = face_encodings[0]
-            matches = face_recognition.compare_faces(self.face_recognizer.known_face_encodings, face_encoding, tolerance=0.4)
+            matches = face_recognition.compare_faces(self.face_recognizer.known_face_encodings, face_encoding, tolerance=0.6)
             face_distances = face_recognition.face_distance(self.face_recognizer.known_face_encodings, face_encoding)
             print(f"Distâncias: {face_distances}")
 
@@ -162,3 +162,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
