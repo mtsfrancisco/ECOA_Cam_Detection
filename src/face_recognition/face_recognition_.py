@@ -5,7 +5,8 @@ import time
 from deepface import DeepFace
 import json
 
-# Caminho para a pasta "users"
+
+# Path to the "users" folder
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 USERS_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "..", "local_database", "users")
 
@@ -23,7 +24,7 @@ class known_people_loader:
         self.load_known_people()
 
     def load_known_people(self):
-        """Carrega as faces conhecidas e armazena em uma lista de objetos Person."""
+        """Load known faces and store them in a list of Person objects."""
 
         for user_folder in os.listdir(self.users_directory):
             user_path = os.path.join(self.users_directory, user_folder)
@@ -68,11 +69,12 @@ class cam_face_recognition:
         self.y_end = self.y_start + self.square_size
 
     def draw_square(self, frame):
-        """Desenha um quadrado no meio da tela."""
+        """Draws a square in the middle of the screen."""
         cv2.rectangle(frame, (self.x_start, self.y_start), (self.x_end, self.y_end), (0, 255, 0), 2)
 
     def analyze_face(self, roi):
         """Analisa a face na região de interesse (ROI) usando DeepFace."""
+        """"Analyze the face in the region of interest (ROI) using DeepFace."""
         temp_roi_path = "temp_roi.jpg"
         cv2.imwrite(temp_roi_path, roi)
         try:
@@ -87,7 +89,7 @@ class cam_face_recognition:
         return None
 
     def recognize_face(self, face_encodings):
-        """Reconhece a face na região de interesse (ROI) usando face_recognition."""
+        """Recognizes the face in the region of interest (ROI) using face_recognition."""
         if face_encodings:
             face_encoding = face_encodings[0]
             matches = face_recognition.compare_faces(self.known_persons.known_face_encodings, face_encoding, tolerance=0.6)
@@ -100,7 +102,7 @@ class cam_face_recognition:
         return None
 
     def display_person_info(self, frame, person):
-        """Exibe informações da pessoa reconhecida no frame."""
+        """Displays information about the recognized person in the frame."""
         person_image = cv2.resize(person.image, (self.square_size, self.square_size))
         frame[0:self.square_size, 0:self.square_size] = person_image
         frame[0:self.square_size, self.square_size:self.square_size * 2] = cv2.resize(frame[self.y_start:self.y_end, self.x_start:self.x_end], (self.square_size, self.square_size))
@@ -108,7 +110,7 @@ class cam_face_recognition:
         print(f"Pessoa reconhecida: {person.name}")
 
     def display_unknown_person_info(self, frame, analysis):
-        """Exibe informações de uma pessoa não reconhecida no frame."""
+        """Displays information about an unrecognized person in the frame."""
         cv2.putText(frame, "Pessoa nao conhecida", (10, self.square_size + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.putText(frame, f"Age: {analysis['age']}", (10, self.square_size + 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.putText(frame, f"Gender: {analysis['dominant_gender']}", (10, self.square_size + 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
@@ -117,7 +119,7 @@ class cam_face_recognition:
         print("Pessoa não reconhecida")
 
     def run(self):
-        """Executa o loop principal de detecção e reconhecimento de faces."""
+        """Runs the main loop of face detection and recognition."""
         while True:
             ret, frame = self.video_capture.read()
             if not ret:
