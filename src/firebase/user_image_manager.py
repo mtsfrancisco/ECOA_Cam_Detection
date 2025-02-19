@@ -4,9 +4,8 @@ import random
 import json
 import hashlib
 import time
-from src.firebase.fire import FirebaseManager
-from src.firebase.image_conversions import ImageConversions
-
+from .fire import FirebaseManager
+from .image_conversions import ImageConversions
 
 class UserImageManager:
     def __init__(self):
@@ -14,12 +13,11 @@ class UserImageManager:
         self.temp_dir = os.path.abspath(os.path.join(self.users_dir, '..', 'temp_user'))
         self.firebase_manager = FirebaseManager()
 
-    def generate_numeric_id():
+    def generate_numeric_id(self):
         unique_str = str(time.time()).encode()  # Usa timestamp para garantir unicidade
         hash_value = hashlib.sha1(unique_str).hexdigest()  # Gera um hash hexadecimal
         numeric_id = int(hash_value, 16)  # Converte o hash hexadecimal para um número inteiro
         return str(numeric_id)[:10]  # Retorna apenas os primeiros 10 dígitos
-
 
     def add_user_local(self, user_data, user_id):
         """
