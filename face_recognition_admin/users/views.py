@@ -31,10 +31,10 @@ def add_user(request):
     if request.method == 'POST':
         form = UserForm(request.POST, request.FILES)
         if form.is_valid():
+            image = request.FILES['image']
             name = form.cleaned_data['name']
             last_name = form.cleaned_data['last_name']
             gender = form.cleaned_data['gender']
-            image = request.FILES['image']
             
             # Salvando a imagem na pasta temp_user
             image_path = os.path.join(temp_user_folder, image.name)
