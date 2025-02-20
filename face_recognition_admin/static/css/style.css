@@ -78,3 +78,29 @@ button:hover {
 .success-container a:hover {
     background-color: #0056b3;
 }
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.btn {
+    display: block;
+    width: 250px;
+    text-align: center;
+    background-color: #1565c0;
+    color: white;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.btn:hover {
+    background-color: #0d47a1;
+}
+
