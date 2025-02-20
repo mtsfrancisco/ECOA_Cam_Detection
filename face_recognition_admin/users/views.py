@@ -10,7 +10,6 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'src')))
 
 # Agora pode importar o UserImageManager
-# Talvez precise tirar o src do caminho
 from firebase.user_image_manager import UserImageManager
 
 # Definição do formulário
@@ -54,3 +53,6 @@ def add_user(request):
 # View para mostrar a página de sucesso
 def success_view(request):
     return render(request, 'users/success.html')
+
+def index(request):
+    return render(request, 'users/index.html')
