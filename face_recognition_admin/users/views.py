@@ -9,9 +9,12 @@ import sys
 # Adiciona o caminho da pasta src ao sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'src')))
 
+CURRENT_DIR = os.path.dirname(__file__)
+USERS_IMG_DIR = os.path.join(CURRENT_DIR,'..' ,'static', 'users_imgage')
+
 # Agora pode importar o UserImageManager
 from firebase.user_image_manager import UserImageManager
-from firebase.user_image_manager import ImageConversions
+
 
 # Definição do formulário
 class UserForm(forms.Form):
@@ -70,7 +73,6 @@ def list_users(request):
             'last_name': user_data.get('last_name', ''),
             'gender': user_data.get('gender', ''),
             'image_64': user_data.get('image_64', ''),  # Base64 da imagem
-            'converted_image': ImageConversions.base64_to_image(user_data.get('image_64', ''), None)  # Imagem convertida
         })
 
     return render(request, 'users/list_users.html', {'users': users_list})
