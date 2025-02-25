@@ -58,7 +58,9 @@ def recover_users():
 
     manager = UserImageManager()
     return manager.recover_users()
+
 #print(add_user())
 #print(update_user())
 #print(delete_user())
-print(recover_users())
+manager = UserImageManager()
+print(manager.get_all_users())
