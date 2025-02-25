@@ -11,6 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 
 # Agora pode importar o UserImageManager
 from firebase.user_image_manager import UserImageManager
+from firebase.user_image_manager import ImageConversions
 
 # Definição do formulário
 class UserForm(forms.Form):
@@ -56,3 +57,20 @@ def success_view(request):
 
 def index(request):
     return render(request, 'users/index.html')
+
+def list_users(request):
+    users = manager.firebase_manager.get_all_users()  # Obtendo todos os usuários do Firebase
+    
+    # Convertendo os dados para uma lista de dicionários
+    users_list = []
+    for user_id, user_data in users.items():
+        users_list.append({
+            'user_id': user_id,
+            'name': user_data.get('name', ''),
+            'last_name': user_data.get('last_name', ''),
+            'gender': user_data.get('gender', ''),
+            'image_64': user_data.get('image_64', ''),  # Base64 da imagem
+            'converted_image': ImageConversions.base64_to_image(user_data.get('image_64', ''), None)  # Imagem convertida
+        })
+
+    return render(request, 'users/list_users.html', {'users': users_list})

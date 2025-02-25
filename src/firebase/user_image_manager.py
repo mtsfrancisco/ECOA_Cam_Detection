@@ -58,6 +58,16 @@ class UserImageManager:
             return user_id
         else:
             raise FileNotFoundError(f"No image found in folder: {self.temp_dir}")
+        
+    
+    def get_all_users(self):
+        """
+        Get all users from Firebase.
+        
+        Returns:
+            dict: Dictionary containing all user data.
+        """
+        return self.firebase_manager.get_all_users()
 
 
     def create_user(self, name, last_name, gender, user_id=None):
