@@ -1,5 +1,5 @@
 from django.shortcuts import render
-
+from django.http import JsonResponse
 # Create your views here.
 from django.shortcuts import render, redirect
 from django import forms
@@ -76,3 +76,27 @@ def list_users(request):
         })
 
     return render(request, 'users/list_users.html', {'users': users_list})
+
+
+def update_user(request, user_id):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        last_name = request.POST.get('last_name')
+        gender = request.POST.get('gender')
+        image = request.FILES.get('image')
+
+        print(name, last_name, gender, user_id)
+
+        if image:
+            image_path = os.path.join(temp_user_folder, image.name)
+            with open(image_path, 'wb+') as destination:
+                for chunk in image.chunks():
+                    destination.write(chunk)
+
+        try:
+            manager.update_user_data(name, last_name, gender, user_id)
+            return JsonResponse({"message": "Usuário atualizado com sucesso!"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+
+    return JsonResponse({"error": "Requisição inválida"}, status=400)
