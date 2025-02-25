@@ -30,3 +30,7 @@ __pycache__/
 # Ignore build and dist folders
 build/
 dist/
+
+# Ignore recognized_people.csv
+recognized_people.csv
+src/recognized_people.csv
