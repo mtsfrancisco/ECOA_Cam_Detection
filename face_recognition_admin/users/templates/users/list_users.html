@@ -23,83 +23,28 @@
                     <h3>{{ user.name }} {{ user.last_name }}</h3>
                     <p>Gênero: {{ user.gender }}</p>
                     <p>ID: {{ user.user_id }}</p>
-                    <a href="#" class="btn" onclick="openEditPopup('{{ user.user_id }}')">Modificar</a>
+                    <a href="{% url 'edit_user' user.user_id %}" class="btn">Modificar</a>
+                    <button onclick="deleteUser('{{ user.user_id }}')" class="btn-delete">Excluir</button>
                 </div>
             {% empty %}
                 <p>Nenhum usuário encontrado.</p>
             {% endfor %}
+
+            <script>
+                function deleteUser(userId) {
+                    if (confirm("Tem certeza que deseja excluir este usuário?")) {
+                        fetch("{% url 'delete_user' 0 %}".replace("0", userId), { method: "POST" }) // Caminho relativo ao root
+                        .then(response => response.json())
+                        .then(data => {
+                            alert(data.message);
+                            location.reload();
+                        })
+                        .catch(error => alert("Erro ao excluir usuário: " + error));
+                    }
+                }
+                </script>
         </div>
     </div>
-
-    
-<!-- Pop-up de edição -->
-<div id="edit-popup" class="popup">
-    <div class="popup-content">
-        <span class="close-btn" onclick="closeEditPopup()">&times;</span>
-        <h2>Editar Usuário</h2>
-        <form id="edit-user-form">
-            <input type="hidden" id="edit-user-id">
-            <label for="edit-name">Nome:</label>
-            <input type="text" id="edit-name">
-            
-            <label for="edit-last-name">Sobrenome:</label>
-            <input type="text" id="edit-last-name">
-            
-            <label for="edit-gender">Gênero:</label>
-            <select id="edit-gender">
-                <option value="M">Masculino</option>
-                <option value="F">Feminino</option>
-                <option value="O">Outro</option>
-            </select>
-            
-            <label for="edit-image">Nova Imagem:</label>
-            <input type="file" id="edit-image">
-            
-            <button type="button" onclick="submitEditUser()">Salvar</button>
-        </form>
-    </div>
-</div>
-
-<!-- Script para manipular o pop-up e enviar os dados via AJAX -->
-<script>
-function openEditPopup(userId) {
-    document.getElementById("edit-user-id").value = userId;
-    document.getElementById("edit-popup").style.display = "block";
-}
-
-function closeEditPopup() {
-    document.getElementById("edit-popup").style.display = "none";
-}
-
-async function submitEditUser() {
-    const userId = document.getElementById("edit-user-id").value;
-    const name = document.getElementById("edit-name").value;
-    const lastName = document.getElementById("edit-last-name").value;
-    const gender = document.getElementById("edit-gender").value;
-    const imageInput = document.getElementById("edit-image");
-
-    let formData = new FormData();
-    formData.append("name", name);
-    formData.append("last_name", lastName);
-    formData.append("gender", gender);
-    if (imageInput.files.length > 0) {
-        formData.append("image", imageInput.files[0]);
-    }
-
-    const response = await fetch(`/update_user/${userId}/`, {
-        method: "POST",
-        body: formData,
-    });
-
-    const result = await response.json();
-    if (response.ok) {
-        alert("Usuário atualizado com sucesso!");
-        location.reload();
-    } else {
-        alert("Erro: " + result.error);
-    }
-}
-</script>
 
 </body>
 </html>

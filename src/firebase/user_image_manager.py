@@ -143,8 +143,10 @@ class UserImageManager:
             'gender': gender,
             'user_id': user_id,
         }
+        print(f" Antes do try:Atualizando usuário {user_id} com os dados: {user_data}")
 
         try:
+            print(f"Depois do try: Atualizando usuário {user_id} com os dados: {user_data}")
             # Create locally
             self.add_user_local(user_data, user_id)
 

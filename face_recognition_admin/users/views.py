@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from django import forms
 import os
 import sys
+from django.views.decorators.csrf import csrf_exempt
 
 # Adiciona o caminho da pasta src ao sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'src')))
@@ -78,25 +79,60 @@ def list_users(request):
     return render(request, 'users/list_users.html', {'users': users_list})
 
 
-def update_user(request, user_id):
+def edit_user(request, user_id):
+    # Obtém os dados do usuário no Firebase
+    user_data = manager.firebase_manager.get_user(user_id)
+
+    if not user_data:
+        return render(request, 'users/error.html', {'message': 'Usuário não encontrado'})
+
     if request.method == 'POST':
-        name = request.POST.get('name')
-        last_name = request.POST.get('last_name')
-        gender = request.POST.get('gender')
-        image = request.FILES.get('image')
+        print('Recebendo dados do formulário...')
+        form = UserForm(request.POST, request.FILES)
+        print(form.errors)
+        if form.is_valid():
+            print('Formulário válido')
+            name = form.cleaned_data['name']
+            last_name = form.cleaned_data['last_name']
+            gender = form.cleaned_data['gender']
 
-        print(name, last_name, gender, user_id)
+            # Se houver nova imagem, salvamos na pasta temp_user
+            if 'image' in request.FILES:
+                image = request.FILES['image']
+                image_path = os.path.join(temp_user_folder, image.name)
+                with open(image_path, 'wb+') as destination:
+                    for chunk in image.chunks():
+                        destination.write(chunk)
+            
+            # Chama a função de atualização
+            try:
+                print('Atualizando usuário...')
+                manager.update_user_data(name, last_name, gender, user_id)
+                return redirect('list_users')  # Redireciona para a lista de usuários após atualização
+            except Exception as e:
+                return render(request, 'users/edit_user.html', {'form': form, 'user_id': user_id, 'error': str(e)})
 
-        if image:
-            image_path = os.path.join(temp_user_folder, image.name)
-            with open(image_path, 'wb+') as destination:
-                for chunk in image.chunks():
-                    destination.write(chunk)
+    else:
+        # Preenche o formulário com os dados atuais do usuário
+        form = UserForm(initial={
+            'name': user_data.get('name', ''),
+            'last_name': user_data.get('last_name', ''),
+            'gender': user_data.get('gender', ''),
+        })
 
+    return render(request, 'users/edit_user.html', {'form': form, 'user_id': user_id})
+
+
+
+@csrf_exempt
+def delete_user(request, user_id):
+    if request.method == 'POST':
         try:
-            manager.update_user_data(name, last_name, gender, user_id)
-            return JsonResponse({"message": "Usuário atualizado com sucesso!"})
+            manager.delete_user(user_id)
+            return JsonResponse({'message': f'Usuário {user_id} excluído com sucesso.'})
         except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
+            return JsonResponse({'error': str(e)}, status=500)
 
-    return JsonResponse({"error": "Requisição inválida"}, status=400)
+
+
+
