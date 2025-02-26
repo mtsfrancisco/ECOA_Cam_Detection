@@ -12,10 +12,10 @@ import cv2
 # YOUR EXISTING IMPORTS
 # ==========================
 # Example: 
-# from src.yolo_method.people_counter import VideoPage
-# from src.face_recognition.face_recognition_ import cam_face_recognition
-# from src.firebase.user_image_manager import UserImageManager
-# from src.firebase.history_manager import HistoryManager
+from src.yolo_method.people_counter import VideoPage
+from src.face_recognition.face_recognition_ import cam_face_recognition
+from src.firebase.user_image_manager import UserImageManager
+from src.firebase.history_manager import HistoryManager
 # ...
 
 # ==========================
