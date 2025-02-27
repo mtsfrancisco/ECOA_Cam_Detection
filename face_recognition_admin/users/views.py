@@ -78,6 +78,20 @@ def list_users(request):
 
     return render(request, 'users/list_users.html', {'users': users_list})
 
+@csrf_exempt
+def delete_user(request, user_id):
+    if request.method == 'POST':
+        try:
+            manager.delete_user(user_id)
+            return JsonResponse({'message': f'Usuário {user_id} excluído com sucesso.'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+class UserForm(forms.Form):
+    name = forms.CharField(label='Nome', max_length=100)
+    last_name = forms.CharField(label='Sobrenome', max_length=100)
+    gender = forms.ChoiceField(label='Gênero', choices=[('M', 'Masculino'), ('F', 'Feminino'), ('O', 'Outro')])
+    image = forms.ImageField(label='Imagem', required=False)  # Campo opcional
 
 def edit_user(request, user_id):
     # Obtém os dados do usuário no Firebase
@@ -89,7 +103,6 @@ def edit_user(request, user_id):
     if request.method == 'POST':
         print('Recebendo dados do formulário...')
         form = UserForm(request.POST, request.FILES)
-        print(form.errors)
         if form.is_valid():
             print('Formulário válido')
             name = form.cleaned_data['name']
@@ -111,7 +124,9 @@ def edit_user(request, user_id):
                 return redirect('list_users')  # Redireciona para a lista de usuários após atualização
             except Exception as e:
                 return render(request, 'users/edit_user.html', {'form': form, 'user_id': user_id, 'error': str(e)})
-
+        else:
+            # Adicione esta linha para depurar os erros do formulário
+            print('Erros do formulário:', form.errors)
     else:
         # Preenche o formulário com os dados atuais do usuário
         form = UserForm(initial={
@@ -121,18 +136,6 @@ def edit_user(request, user_id):
         })
 
     return render(request, 'users/edit_user.html', {'form': form, 'user_id': user_id})
-
-
-
-@csrf_exempt
-def delete_user(request, user_id):
-    if request.method == 'POST':
-        try:
-            manager.delete_user(user_id)
-            return JsonResponse({'message': f'Usuário {user_id} excluído com sucesso.'})
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
-
 
 
 
