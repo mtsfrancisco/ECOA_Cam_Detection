@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 import sys
 import cv2
 import os
@@ -8,9 +11,9 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import pyqtSignal, QTimer
 from PyQt5.QtGui import QPixmap
 from src.yolo_method.people_counter import VideoPage
-from src.face_recognition.face_recognition_ import cam_face_recognition
+#from src.face_recognition.face_recognition_ import cam_face_recognition
 from src.firebase.user_image_manager import UserImageManager
-from src.firebase.history_manager import HistoryManager
+#from src.firebase.history_manager import HistoryManager
 
 # ==========================
 # HomePage
