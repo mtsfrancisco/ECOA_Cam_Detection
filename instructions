@@ -1,20 +1,8 @@
 To run in an environment:
-- Create a virtual environment
-- Install the independencies necessary through the use of pip 
-    and the req.txt file given
-- If tkinter isnt installed run the following outside of the 
-    venv environment -> brew install tkinter
-- You will have to check if versions of python3 and tkinter 
-    match
-- To run use f5 while in the PeopleCounter.py file or...
-    ... use the Python + directory to run the program
+- Within the main directory of the project type the following
+    -> source setup.sh
+    - This is an automated script to handle .venv and
+      other dependancies
+    - For the moment it is only automated for the macbook
 
-To run within the .exe
-- To create the .exe simply run pyinstaller PeopleCounter.spec
-- It may take up to 15 minutes for the .exe to compile and
-    be ready for use
-- Once compiled simply head to the dist/ folder created and
-    double click on the resulting .exe file to run the program
-- If it takes a while for the program to start, this is normal
-    behavior as opening it does indeed take a delay to start
-    due to packages/libraries installed
+"Need to write instructions on how to write actual .exe"
