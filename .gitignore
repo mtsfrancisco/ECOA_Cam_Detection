@@ -16,6 +16,8 @@ venv/
 # Ignorning files that prevent uploads to github
 media/
 !media
+*.mp4
+*.pt
 
 # PyInstaller build artifacts
 build/
