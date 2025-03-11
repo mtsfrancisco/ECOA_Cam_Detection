@@ -24,7 +24,6 @@ class UserForm(forms.Form):
     name = forms.CharField(label='Nome', max_length=100)
     last_name = forms.CharField(label='Sobrenome', max_length=100)
     gender = forms.ChoiceField(label='Gênero', choices=[('M', 'Masculino'), ('F', 'Feminino'), ('O', 'Outro')])
-    image = forms.ImageField(label='Imagem')
 
 # Caminho da pasta temp_user
 temp_user_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..','src','local_database','temp_user'))
@@ -35,44 +34,36 @@ manager = UserImageManager()
 # View para processar o formulário
 def add_user(request):
     if request.method == 'POST':
-        form = UserForm(request.POST, request.FILES)
-        
-        # Verifica se a imagem veio da webcam ou foi carregada
-        image_base64 = request.POST.get("image_base64", None)
-
+        form = UserForm(request.POST)
         if form.is_valid():
             name = form.cleaned_data['name']
             last_name = form.cleaned_data['last_name']
             gender = form.cleaned_data['gender']
 
-            # Se for uma imagem carregada do computador
-            if 'image' in request.FILES:
-                image = request.FILES['image']
-                image_path = os.path.join(temp_user_folder, image.name)
-                with open(image_path, 'wb+') as destination:
-                    for chunk in image.chunks():
-                        destination.write(chunk)
+            captured_image = request.POST.get('captured_image')  # Imagem da webcam
 
-            # Se for uma imagem capturada da webcam
-            elif image_base64:
-                format, imgstr = image_base64.split(';base64,')
-                ext = format.split('/')[-1]
-                image_name = f"{uuid.uuid4()}.{ext}"
-                image_path = os.path.join(temp_user_folder, image_name)
+            if captured_image:
+                # Converte a imagem base64 em arquivo e salva na pasta temp_user
+                import base64
+                from io import BytesIO
+                from PIL import Image
 
-                with open(image_path, "wb") as img_file:
-                    img_file.write(base64.b64decode(imgstr))
+                image_data = captured_image.split(',')[1]
+                image_binary = base64.b64decode(image_data)
 
+                image_path = os.path.join(temp_user_folder, f"{name}.png")
+                with open(image_path, 'wb') as f:
+                    f.write(image_binary)
+            
             try:
                 user_id = manager.create_user(name, last_name, gender)
                 return redirect('success')
             except Exception as e:
                 return render(request, 'users/add_user.html', {'form': form, 'error': str(e)})
-
     else:
         form = UserForm()
-    
     return render(request, 'users/add_user.html', {'form': form})
+
 
 # View para mostrar a página de sucesso
 def success_view(request):
