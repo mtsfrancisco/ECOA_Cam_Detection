@@ -3,8 +3,10 @@ import face_recognition
 import os
 import time
 from deepface import DeepFace
+from datetime import datetime
+from src.firebase.user_image_manager import UserImageManager
 import json
-
+import csv
 
 # Path to the "users" folder
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -55,7 +57,7 @@ class known_people_loader:
                             self.known_face_encodings.append(encodings[0])
 
 class cam_face_recognition:
-    def __init__(self, known_persons, wait_time=5):
+    def __init__(self, known_persons, wait_time=5, csv_file="src/face_recognition/recognized_people.csv"):
         self.known_persons = known_persons
         self.wait_time = wait_time
         self.last_check_time = time.time() - wait_time
@@ -67,6 +69,14 @@ class cam_face_recognition:
         self.y_start = self.frame_height // 2 - self.square_size // 2
         self.x_end = self.x_start + self.square_size
         self.y_end = self.y_start + self.square_size
+
+        self.csv_file = csv_file
+
+        # Se o arquivo CSV não existir, cria com cabeçalhos
+        if not os.path.exists(self.csv_file):
+            with open(self.csv_file, mode="w", newline="") as file:
+                writer = csv.writer(file)
+                writer.writerow(["Timestamp", "Name"])  # Cabeçalhos das colunas
 
     def draw_square(self, frame):
         """Draws a square in the middle of the screen."""
@@ -107,7 +117,15 @@ class cam_face_recognition:
         frame[0:self.square_size, 0:self.square_size] = person_image
         frame[0:self.square_size, self.square_size:self.square_size * 2] = cv2.resize(frame[self.y_start:self.y_end, self.x_start:self.x_end], (self.square_size, self.square_size))
         cv2.putText(frame, person.name, (10, self.square_size + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-        print(f"Pessoa reconhecida: {person.name}")
+        
+        # Obter o timestamp atual
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        with open(self.csv_file, mode="a", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow([timestamp, person.name])
+        
+        print(f"Pessoa reconhecida: {person.name} às {timestamp}")
 
     def display_unknown_person_info(self, frame, analysis):
         """Displays information about an unrecognized person in the frame."""
@@ -162,6 +180,14 @@ def main():
     face_recognizer.run()
 
 if __name__ == "__main__":
+    manager = UserImageManager()
+    print(manager.recover_users())
+    img_path = os.path.join(CURRENT_DIRECTORY, "Matheus.jpg")
+    objs = DeepFace.analyze(
+    img_path = img_path, 
+    actions = ['age', 'gender', 'race', 'emotion'],
+    enforce_detection=False
+    )
     main()
 
 
