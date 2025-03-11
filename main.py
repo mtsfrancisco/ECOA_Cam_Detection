@@ -6,7 +6,7 @@ import cv2
 import os
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QStackedWidget, QWidget,
-    QVBoxLayout, QPushButton, QMessageBox, QLabel, QLineEdit, QFormLayout, QListWidget, QListWidgetItem
+    QVBoxLayout, QPushButton, QMessageBox, QLabel, QLineEdit, QFormLayout, QListWidget, QListWidgetItem ,QFileDialog
 )
 from PyQt5.QtCore import pyqtSignal, QTimer
 from PyQt5.QtGui import QPixmap
@@ -388,6 +388,26 @@ class MainWindow(QMainWindow):
         self.stacked.setCurrentIndex(0)
 
     def go_to_cameras(self):
+        # Aqui temos acesso a self.video_page
+        # Podemos abrir a câmera ou vídeo
+        reply = QMessageBox.question(
+            self,
+            "Selecione a fonte",
+            "Deseja abrir a webcam (Yes) ou um arquivo de vídeo (No)?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        if reply == QMessageBox.Yes:
+            self.video_page.open_camera()
+        else:
+            file_path, _ = QFileDialog.getOpenFileName(
+                self,
+                "Selecione o arquivo de vídeo",
+                "",
+                "Vídeos (*.mp4 *.avi *.mov);;Todos (*)"
+            )
+            if file_path:
+                self.video_page.open_video_file(file_path)
+        
         self.stacked.setCurrentIndex(1)
 
     def go_to_face_rec(self):
