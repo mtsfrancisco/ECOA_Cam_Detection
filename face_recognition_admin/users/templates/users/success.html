@@ -9,7 +9,11 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <div class="header">Face Recognition Admin</div>
+    <div class="header">
+        <a href="{% url 'index' %}" style="text-decoration: none; color: inherit;">
+            Face Recognition Admin
+        </a>
+    </div>
 
     <div class="success-container">
         <h2>Usuário criado com sucesso!</h2>
