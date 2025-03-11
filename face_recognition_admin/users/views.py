@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
+import base64
+import uuid  # Adicionado para gerar nomes únicos para imagens capturadas
 # Create your views here.
 from django.shortcuts import render, redirect
 from django import forms
@@ -34,25 +36,42 @@ manager = UserImageManager()
 def add_user(request):
     if request.method == 'POST':
         form = UserForm(request.POST, request.FILES)
+        
+        # Verifica se a imagem veio da webcam ou foi carregada
+        image_base64 = request.POST.get("image_base64", None)
+
         if form.is_valid():
-            image = request.FILES['image']
             name = form.cleaned_data['name']
             last_name = form.cleaned_data['last_name']
             gender = form.cleaned_data['gender']
-            
-            # Salvando a imagem na pasta temp_user
-            image_path = os.path.join(temp_user_folder, image.name)
-            with open(image_path, 'wb+') as destination:
-                for chunk in image.chunks():
-                    destination.write(chunk)
-            
+
+            # Se for uma imagem carregada do computador
+            if 'image' in request.FILES:
+                image = request.FILES['image']
+                image_path = os.path.join(temp_user_folder, image.name)
+                with open(image_path, 'wb+') as destination:
+                    for chunk in image.chunks():
+                        destination.write(chunk)
+
+            # Se for uma imagem capturada da webcam
+            elif image_base64:
+                format, imgstr = image_base64.split(';base64,')
+                ext = format.split('/')[-1]
+                image_name = f"{uuid.uuid4()}.{ext}"
+                image_path = os.path.join(temp_user_folder, image_name)
+
+                with open(image_path, "wb") as img_file:
+                    img_file.write(base64.b64decode(imgstr))
+
             try:
                 user_id = manager.create_user(name, last_name, gender)
                 return redirect('success')
             except Exception as e:
                 return render(request, 'users/add_user.html', {'form': form, 'error': str(e)})
+
     else:
         form = UserForm()
+    
     return render(request, 'users/add_user.html', {'form': form})
 
 # View para mostrar a página de sucesso
@@ -63,8 +82,11 @@ def index(request):
     return render(request, 'users/index.html')
 
 def list_users(request):
-    users = manager.firebase_manager.get_all_users()  # Obtendo todos os usuários do Firebase
+    #users = manager.firebase_manager.get_all_users()  # Obtendo todos os usuários do Firebase
     
+    # Obtenha todos os usuarios localmente
+    users = manager.get_all_local_users()
+
     # Convertendo os dados para uma lista de dicionários
     users_list = []
     for user_id, user_data in users.items():

@@ -19,8 +19,6 @@ class UserImageManager:
         numeric_id = int(hash_value, 16)  # Converte o hash hexadecimal para um número inteiro
         return str(numeric_id)[:10]  # Retorna apenas os primeiros 10 dígitos
 
-    import os
-
 
     def add_user_local(self, user_data, user_id, require_image=True):
         """
@@ -261,3 +259,19 @@ class UserImageManager:
             if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
                 return filename
         return None
+    
+    def get_all_local_users(self):
+        """
+        Get all users from local storage.
+        
+        Returns:
+            dict: Dictionary containing all user data.
+        """
+        users = {}
+        for user_folder in os.listdir(self.users_dir):
+            user_id = user_folder
+            user_data_path = os.path.join(self.users_dir, user_folder, f"{user_id}.json")
+            with open(user_data_path, 'r') as json_file:
+                user_data = json.load(json_file)
+                users[user_id] = user_data
+        return users

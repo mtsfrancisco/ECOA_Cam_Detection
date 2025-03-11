@@ -1,5 +1,4 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -19,8 +18,67 @@
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.as_p }}
+
+            <!-- Opção para escolher entre Upload ou Câmera -->
+            <p>Escolha como enviar a imagem:</p>
+            <button type="button" id="openCamera">Usar Webcam</button>
+            <input type="file" name="image" id="fileInput">
+            
+            <!-- Elemento de vídeo para exibição da câmera -->
+            <div id="cameraContainer" style="display: none;">
+                <video id="video" width="320" height="240" autoplay></video>
+                <button type="button" id="captureBtn">Capturar Foto</button>
+            </div>
+
+            <!-- Canvas para capturar imagem -->
+            <canvas id="canvas" style="display: none;"></canvas>
+            <input type="hidden" name="image_base64" id="imageBase64">
+
             <button type="submit">Adicionar</button>
         </form>
     </div>
+
+    <script>
+        const openCameraBtn = document.getElementById('openCamera');
+        const cameraContainer = document.getElementById('cameraContainer');
+        const video = document.getElementById('video');
+        const captureBtn = document.getElementById('captureBtn');
+        const canvas = document.getElementById('canvas');
+        const imageBase64Input = document.getElementById('imageBase64');
+        const fileInput = document.getElementById('fileInput');
+        let stream = null;
+
+        // Abrir a câmera apenas quando clicar no botão
+        openCameraBtn.addEventListener('click', async () => {
+            cameraContainer.style.display = 'block';
+            fileInput.style.display = 'none';
+
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (error) {
+                alert("Erro ao acessar a câmera: " + error);
+            }
+        });
+
+        // Capturar imagem da webcam
+        captureBtn.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Converter imagem para Base64
+            const imageData = canvas.toDataURL('image/jpeg');
+            imageBase64Input.value = imageData;
+            
+            // Parar a câmera após capturar
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            
+            // Ocultar vídeo e mostrar que a imagem foi capturada
+            cameraContainer.innerHTML = "<p>Foto capturada com sucesso!</p>";
+        });
+    </script>
 </body>
 </html>
