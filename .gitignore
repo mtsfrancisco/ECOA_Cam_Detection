@@ -9,6 +9,16 @@ venv/
 .env/*
 !.env
 
+# Ignore the contents of the .env file but include the empty file
+.env/*
+!.env
+
+# Ignorning files that prevent uploads to github
+media/
+!media
+*.mp4
+*.pt
+
 # PyInstaller build artifacts
 build/
 

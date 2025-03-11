@@ -1,4 +1,8 @@
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 import sys
+import cv2
 import os
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QStackedWidget, QWidget,
@@ -6,17 +10,10 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import pyqtSignal, QTimer
 from PyQt5.QtGui import QPixmap
-import cv2
-
-# ==========================
-# YOUR EXISTING IMPORTS
-# ==========================
-# Example: 
-# from src.yolo_method.people_counter import VideoPage
-# from src.face_recognition.face_recognition_ import cam_face_recognition
-# from src.firebase.user_image_manager import UserImageManager
-# from src.firebase.history_manager import HistoryManager
-# ...
+from src.yolo_method.people_counter import VideoPage
+#from src.face_recognition.face_recognition_ import cam_face_recognition
+from src.firebase.user_image_manager import UserImageManager
+#from src.firebase.history_manager import HistoryManager
 
 # ==========================
 # HomePage
@@ -211,7 +208,6 @@ class AddUserPage(QWidget):
         """
         # We import inside the method to avoid issues with circular references.
         if not self.user_manager:
-            from src.firebase.user_image_manager import UserImageManager
             self.user_manager = UserImageManager()
 
         temp_dir = self.user_manager.temp_dir
@@ -360,7 +356,6 @@ class MainWindow(QMainWindow):
         self.stacked.addWidget(self.home_page)
 
         # 1) VideoPage (YOLO). Adapt your import according to your code.
-        from src.yolo_method.people_counter import VideoPage
         self.video_page = VideoPage()
         self.video_page.back_to_start_signal.connect(self.go_home)
         self.stacked.addWidget(self.video_page)
