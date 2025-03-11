@@ -12,8 +12,8 @@ from PyQt5.QtCore import QTimer, Qt, pyqtSignal, QPoint
 from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen
 
 # Local imports
-from tracker import Tracker
-from video_stream import VideoStream
+from .tracker import Tracker
+from .video_stream import VideoStream
 from ultralytics import YOLO
 
 ##############################################################################
