@@ -20,6 +20,7 @@ class UserImageManager:
         return str(numeric_id)[:10]  # Retorna apenas os primeiros 10 dígitos
 
 
+
     def add_user_local(self, user_data, user_id, require_image=True):
         """
         Add a user to Firebase with their image stored locally.
@@ -35,40 +36,53 @@ class UserImageManager:
             str: Message indicating that the user was created or updated successfully.
         """
 
-        image_filename = self._find_first_image(self.temp_dir)
+        # Diretório do usuário e caminho do JSON
+        user_folder = os.path.join(self.users_dir, user_id)
+        user_data_path = os.path.join(user_folder, f"{user_id}.json")
 
+        # Verifica se já existe um arquivo JSON e carrega os dados antigos
+        previous_data = {}
+        if os.path.exists(user_data_path):
+            with open(user_data_path, 'r') as json_file:
+                try:
+                    previous_data = json.load(json_file)
+                except json.JSONDecodeError:
+                    pass  # Se houver erro no JSON, assume-se que está vazio/corrompido
+
+        # Mantém a imagem antiga se nenhuma nova for fornecida
+        if 'image_64' in previous_data and 'image_64' not in user_data:
+            user_data['image_64'] = previous_data['image_64']
+
+        # Verifica se há uma nova imagem a ser salva
+        image_filename = self._find_first_image(self.temp_dir)
         if image_filename:
             original_image_path = os.path.join(self.temp_dir, image_filename)
             new_image_name = f"{user_data['name']}.jpg"
             new_image_path = os.path.join(self.temp_dir, new_image_name)
-            
-            # Renomeia a imagem para garantir que tenha o nome do usuário
+
+            # Renomeia a imagem
             os.rename(original_image_path, new_image_path)
 
-            user_folder = os.path.join(self.users_dir, user_id)
+            # Cria diretório se não existir
             os.makedirs(user_folder, exist_ok=True)
 
             final_image_path = os.path.join(user_folder, new_image_name)
             os.rename(new_image_path, final_image_path)
 
-            # Converte a imagem para base64 e adiciona ao dicionário
+            # Converte a nova imagem para base64 e sobrescreve o valor antigo
             base64_image = ImageConversions.image_to_base64(final_image_path)
             user_data['image_64'] = base64_image
 
-        elif require_image:
+        elif require_image and 'image_64' not in user_data:
             raise FileNotFoundError(f"No image found in folder: {self.temp_dir}")
 
-        # Cria o diretório do usuário se não existir
-        user_folder = os.path.join(self.users_dir, user_id)
-        os.makedirs(user_folder, exist_ok=True)
-
-
         # Salva os dados do usuário como JSON
-        user_data_path = os.path.join(user_folder, f"{user_data['user_id']}.json")
+        os.makedirs(user_folder, exist_ok=True)
         with open(user_data_path, 'w') as json_file:
             json.dump(user_data, json_file, indent=4)
 
         return user_id
+
 
 
     
