@@ -18,12 +18,11 @@ USERS_IMG_DIR = os.path.join(CURRENT_DIR,'..' ,'static', 'users_imgage')
 # Agora pode importar o UserImageManager
 from firebase.user_image_manager import UserImageManager
 
-
-# Definição do formulário
 class UserForm(forms.Form):
     name = forms.CharField(label='Nome', max_length=100)
     last_name = forms.CharField(label='Sobrenome', max_length=100)
     gender = forms.ChoiceField(label='Gênero', choices=[('M', 'Masculino'), ('F', 'Feminino'), ('O', 'Outro')])
+    image = forms.ImageField(label='Imagem', required=False)  # Campo opcional
 
 # Caminho da pasta temp_user
 temp_user_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..','src','local_database','temp_user'))
@@ -100,11 +99,6 @@ def delete_user(request, user_id):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
-class UserForm(forms.Form):
-    name = forms.CharField(label='Nome', max_length=100)
-    last_name = forms.CharField(label='Sobrenome', max_length=100)
-    gender = forms.ChoiceField(label='Gênero', choices=[('M', 'Masculino'), ('F', 'Feminino'), ('O', 'Outro')])
-    image = forms.ImageField(label='Imagem', required=False)  # Campo opcional
 
 def edit_user(request, user_id):
     # Obtém os dados do usuário no Firebase

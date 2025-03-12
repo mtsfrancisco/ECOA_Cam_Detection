@@ -62,6 +62,7 @@ class UserImageManager:
         user_folder = os.path.join(self.users_dir, user_id)
         os.makedirs(user_folder, exist_ok=True)
 
+
         # Salva os dados do usuário como JSON
         user_data_path = os.path.join(user_folder, f"{user_data['user_id']}.json")
         with open(user_data_path, 'w') as json_file:
