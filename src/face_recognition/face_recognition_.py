@@ -138,6 +138,7 @@ class cam_face_recognition:
             "status": "Feature in developement"
         }
 
+        print("\n Found user_id " + person.user_id + "\n")
         # Adding history to the database
         self.history_manager.add_history(person.user_id, history_data)
 
