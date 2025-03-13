@@ -28,17 +28,22 @@ fonttools==4.54.1
 fsspec==2024.10.0
 gast==0.6.0
 gdown==5.2.0
-google-api-core==2.24.1
-google-api-python-client==2.160.0
+google-api-core==2.24.2
+google-api-python-client==2.163.0
 google-auth==2.38.0
 google-auth-httplib2==0.2.0
+<<<<<<< HEAD
 google-cloud-core==2.4.1
 google-cloud-firestore==2.20.0
+=======
+google-cloud-core==2.4.3
+google-cloud-firestore==2.20.1
+>>>>>>> caa0b5105a647e0ba37d1133e2164042b6ac7ccd
 google-cloud-storage==2.19.0
 google-crc32c==1.6.0
 google-pasta==0.2.0
 google-resumable-media==2.7.2
-googleapis-common-protos==1.66.0
+googleapis-common-protos==1.69.1
 grpcio==1.70.0
 grpcio-status==1.70.0
 gunicorn==23.0.0
@@ -72,7 +77,7 @@ optree==0.14.0
 packaging==24.1
 pandas==2.2.3
 pillow==11.0.0
-proto-plus==1.26.0
+proto-plus==1.26.1
 protobuf==4.25.6
 psutil==6.1.0
 py-cpuinfo==9.0.0
@@ -97,6 +102,10 @@ rich==13.9.4
 rsa==4.9
 scipy==1.14.1
 seaborn==0.13.2
+<<<<<<< HEAD
+=======
+setuptools==76.0.0
+>>>>>>> caa0b5105a647e0ba37d1133e2164042b6ac7ccd
 six==1.16.0
 soupsieve==2.6
 sqlparse==0.5.3
