@@ -1,15 +1,17 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 import base64
-import uuid  # Adicionado para gerar nomes únicos para imagens capturadas
-# Create your views here.
+import uuid 
 from django.shortcuts import render, redirect
 from django import forms
 import os
 import sys
 from django.views.decorators.csrf import csrf_exempt
+import base64
+from io import BytesIO
+from PIL import Image
 
-# Adiciona o caminho da pasta src ao sys.path
+# Add the path to the src folder to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'src')))
 
 CURRENT_DIR = os.path.dirname(__file__)
@@ -43,9 +45,6 @@ def add_user(request):
 
             if captured_image:
                 # Converte a imagem base64 em arquivo e salva na pasta temp_user
-                import base64
-                from io import BytesIO
-                from PIL import Image
 
                 image_data = captured_image.split(',')[1]
                 image_binary = base64.b64decode(image_data)
@@ -99,43 +98,46 @@ def delete_user(request, user_id):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
-
 def edit_user(request, user_id):
-    # Obtém os dados do usuário no Firebase
     user_data = manager.firebase_manager.get_user(user_id)
-
+    
     if not user_data:
         return render(request, 'users/error.html', {'message': 'Usuário não encontrado'})
-
+    
     if request.method == 'POST':
-        print('Recebendo dados do formulário...')
         form = UserForm(request.POST, request.FILES)
         if form.is_valid():
-            print('Formulário válido')
             name = form.cleaned_data['name']
             last_name = form.cleaned_data['last_name']
             gender = form.cleaned_data['gender']
+            captured_image = request.POST.get('captured_image')  # Imagem capturada pela webcam
 
-            # Se houver nova imagem, salvamos na pasta temp_user
+            image_path = None
+            
             if 'image' in request.FILES:
+                # Se o usuário fez upload de uma imagem
                 image = request.FILES['image']
                 image_path = os.path.join(temp_user_folder, image.name)
                 with open(image_path, 'wb+') as destination:
                     for chunk in image.chunks():
                         destination.write(chunk)
-            
-            # Chama a função de atualização
+
+            elif captured_image:
+                # Se o usuário capturou uma imagem com a webcam
+                image_data = captured_image.split(',')[1]  # Remove o cabeçalho data:image/png;base64,
+                image_binary = base64.b64decode(image_data)
+                image_path = os.path.join(temp_user_folder, f"{user_id}.png")
+                with open(image_path, 'wb') as f:
+                    f.write(image_binary)
+
+            # Atualiza os dados do usuário
             try:
-                print('Atualizando usuário...')
                 manager.update_user_data(name, last_name, gender, user_id)
-                return redirect('list_users')  # Redireciona para a lista de usuários após atualização
+                return redirect('list_users')
             except Exception as e:
                 return render(request, 'users/edit_user.html', {'form': form, 'user_id': user_id, 'error': str(e)})
-        else:
-            # Adicione esta linha para depurar os erros do formulário
-            print('Erros do formulário:', form.errors)
+        
     else:
-        # Preenche o formulário com os dados atuais do usuário
         form = UserForm(initial={
             'name': user_data.get('name', ''),
             'last_name': user_data.get('last_name', ''),
@@ -143,6 +145,5 @@ def edit_user(request, user_id):
         })
 
     return render(request, 'users/edit_user.html', {'form': form, 'user_id': user_id})
-
 
 
