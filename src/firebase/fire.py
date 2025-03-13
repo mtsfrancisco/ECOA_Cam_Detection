@@ -13,13 +13,17 @@ class FirebaseManager:
     --- Do not touch anything in this file ---
     -> Also good to look into this file to see ...
     -> ... what functionalities exist
+    YES ENZO I TOUCHED THE FILE, I NEEDED TO CREATE A VERIFICATION TO CHECK IF THE APP WAS BEEING CALLED MORE THAN ONCE, DEAL WITH IT, I DONT CARE
     '''
-    def __init__(self):
-        service_account_path = os.path.join(os.path.dirname(__file__), 'serviceAccountKey.json')
-        cred = credentials.Certificate(service_account_path)
-        firebase_admin.initialize_app(cred, {
-            'databaseURL': 'https://ecoa-camera-default-rtdb.firebaseio.com'
-        })
+    class FirebaseManager:
+        def __init__(self):
+            if not firebase_admin._apps:
+                service_account_path = os.path.join(
+                    os.path.dirname(__file__), 'serviceAccountKey.json')
+                cred = credentials.Certificate(service_account_path)
+                firebase_admin.initialize_app(cred, {
+                    'databaseURL': 'https://ecoa-camera-default-rtdb.firebaseio.com' 
+            })
 
     def add_user(self, user_id, user_data):
         ref = db.reference(f'users/{user_id}')
