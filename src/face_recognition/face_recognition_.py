@@ -17,11 +17,11 @@ CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 USERS_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "..", "local_database", "users")
 
 class Person:
-    def __init__(self, name, encoding, image, id):
+    def __init__(self, name, encoding, image, user_id):
         self.name = name
         self.encoding = encoding
         self.image = image
-        self.id = id
+        self.user_id = user_id
 
 class known_people_loader:
     def __init__(self, users_directory):
@@ -58,7 +58,7 @@ class known_people_loader:
                                 name=f"{person_name} {person_last_name}",
                                 encoding=encodings[0],
                                 image=cv2.imread(file_path),
-                                id = person_data.get("id", None)
+                                user_id = person_data.get("user_id")
                             ))
                             self.known_face_encodings.append(encodings[0])
 
@@ -131,7 +131,7 @@ class cam_face_recognition:
         # Formatting data for json type
         date, time = timestamp.split(" ")
         history_data = {
-            "id": person.id,
+            "user_id": person.user_id,
             "name": person.name,
             "date": date,
             "time": time,
@@ -139,7 +139,7 @@ class cam_face_recognition:
         }
 
         # Adding history to the database
-        self.history_manager.add_history(person.id, history_data)
+        self.history_manager.add_history(person.user_id, history_data)
 
         with open(self.csv_file, mode="a", newline="") as file:
             writer = csv.writer(file)
