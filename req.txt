@@ -33,12 +33,17 @@ google-api-python-client==2.163.0
 google-auth==2.38.0
 google-auth-httplib2==0.2.0
 <<<<<<< HEAD
+<<<<<<< HEAD
 google-cloud-core==2.4.1
 google-cloud-firestore==2.20.0
 =======
 google-cloud-core==2.4.3
 google-cloud-firestore==2.20.1
 >>>>>>> caa0b5105a647e0ba37d1133e2164042b6ac7ccd
+=======
+google-cloud-core==2.4.3
+google-cloud-firestore==2.20.1
+>>>>>>> django-app
 google-cloud-storage==2.19.0
 google-crc32c==1.6.0
 google-pasta==0.2.0
@@ -103,9 +108,13 @@ rsa==4.9
 scipy==1.14.1
 seaborn==0.13.2
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 setuptools==76.0.0
 >>>>>>> caa0b5105a647e0ba37d1133e2164042b6ac7ccd
+=======
+setuptools==76.0.0
+>>>>>>> django-app
 six==1.16.0
 soupsieve==2.6
 sqlparse==0.5.3

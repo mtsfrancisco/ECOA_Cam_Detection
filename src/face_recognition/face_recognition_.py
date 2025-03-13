@@ -179,12 +179,21 @@ def main():
     face_recognizer.run()
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     img_path = os.path.join(CURRENT_DIRECTORY, "Matheus.jpg")
     objs = DeepFace.analyze(
     img_path = img_path, 
     actions = ['age', 'gender', 'race', 'emotion'],
     enforce_detection=False
     )
+=======
+    #img_path = os.path.join(CURRENT_DIRECTORY, "Matheus.jpg")
+    #objs = DeepFace.analyze(
+    #img_path = img_path, 
+    #actions = ['age', 'gender', 'race', 'emotion'],
+    #enforce_detection=False
+    #)
+>>>>>>> django-app
     main()
 
 
