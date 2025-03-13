@@ -174,6 +174,12 @@ class UserImageManager:
         try:
             print(f"Depois do try: Atualizando usuário {user_id} com os dados: {user_data}")
 
+            # Update the user .jpg name locally
+            user_folder = os.path.join(self.users_dir, user_id)
+            image_filename = self._find_first_image(user_folder)
+            if image_filename:
+                os.rename(os.path.join(user_folder, image_filename), os.path.join(user_folder, f"{name}.jpg"))
+
             # Atualiza localmente os dados do usuário, sem exigir imagem obrigatoriamente
             self.add_user_local(user_data, user_id, require_image=False)
 
