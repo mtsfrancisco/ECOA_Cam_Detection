@@ -16,6 +16,8 @@ class HistoryManager:
             user_id (str): The user ID.
             history_data (dict): The history data.
             -> history_data should contain the following
+                - id (str): The ID of the person.
+                - name (str): The name of the person.
                 - date (str): The date of the history.
                 - time (str): The time of the history.
                 - status (str): Entering/Leaving.
