@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Usuários</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header class="header">
+        <a href="{% url 'index' %}" style="text-decoration: none; color: inherit;">
+            Face Recognition Admin
+        </a>
+    </header>
+    
+    <div class="user-container">
+        <h2>Lista de Usuários</h2>
+        <div class="user-grid">
+            {% for user in users %}
+                <div class="user-card">
+                    {% if user.image_64 %}
+                        <img src="{{ user.image_64 }}" alt="Foto de {{ user.name }}">
+                    {% else %}
+                        <img src="{% static 'images/default_avatar.png' %}" alt="Imagem padrão">
+                    {% endif %}
+                    <h3>{{ user.name }} {{ user.last_name }}</h3>
+                    <p>Gênero: {{ user.gender }}</p>
+                    <p>ID: {{ user.user_id }}</p>
+                    <a href="{% url 'edit_user' user.user_id %}" class="btn">Modificar</a>
+                    <button onclick="deleteUser('{{ user.user_id }}')" class="btn-delete">Excluir</button>
+                </div>
+            {% empty %}
+                <p>Nenhum usuário encontrado.</p>
+            {% endfor %}
+
+            <script>
+                function deleteUser(userId) {
+                    if (confirm("Tem certeza que deseja excluir este usuário?")) {
+                        fetch("{% url 'delete_user' 0 %}".replace("0", userId), { method: "POST" }) // Caminho relativo ao root
+                        .then(response => response.json())
+                        .then(data => {
+                            alert(data.message);
+                            location.reload();
+                        })
+                        .catch(error => alert("Erro ao excluir usuário: " + error));
+                    }
+                }
+                </script>
+        </div>
+    </div>
+
+</body>
+</html>
+

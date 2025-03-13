@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Usuário</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header class="header">
+        <a href="{% url 'index' %}" style="text-decoration: none; color: inherit;">
+            Face Recognition Admin
+        </a>
+    </header>
+
+    <div class="form-container">
+        <h2>Modificar Usuário</h2>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <label for="id_name">Nome:</label>
+            <input type="text" name="name" id="id_name" value="{{ form.name.value }}" required>
+
+            <label for="id_last_name">Sobrenome:</label>
+            <input type="text" name="last_name" id="id_last_name" value="{{ form.last_name.value }}" required>
+
+            <label for="id_gender">Gênero:</label>
+            <select name="gender" id="id_gender">
+                <option value="M" {% if form.gender.value == "M" %}selected{% endif %}>Masculino</option>
+                <option value="F" {% if form.gender.value == "F" %}selected{% endif %}>Feminino</option>
+                <option value="O" {% if form.gender.value == "O" %}selected{% endif %}>Outro</option>
+            </select>
+
+            <label for="id_image">Imagem:</label>
+            <input type="file" name="image" id="id_image">
+
+            <button type="submit">Salvar Alterações</button>
+        </form>
+
+        
+        <a href="{% url 'list_users' %}" class="btn">Cancelar</a>
+
+        {% if error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>

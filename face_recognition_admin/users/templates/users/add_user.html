@@ -1,0 +1,105 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Usuário</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="header">
+        <a href="{% url 'index' %}" style="text-decoration: none; color: inherit;">
+            Face Recognition Admin
+        </a>
+    </div>
+
+    <div class="form-container">
+        <h2>Adicionar Usuário</h2>
+        {% if error %}
+            <p style="color: red;">Erro: {{ error }}</p>
+        {% endif %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Campos de texto sempre visíveis -->
+            <p>{{ form.name.label_tag }} {{ form.name }}</p>
+            <p>{{ form.last_name.label_tag }} {{ form.last_name }}</p>
+            <p>{{ form.gender.label_tag }} {{ form.gender }}</p>
+
+            <!-- Upload de imagem e botão para ativar webcam -->
+            <div id="image-options">
+                <div id="image-upload-container" style="display: flex; flex-direction: column; align-items: center;">
+                    <p>{{ form.image.label_tag }} {{ form.image }}</p>
+                </div>
+            </div>
+            <button type="button" id="start-camera">Usar Webcam</button>
+
+            <!-- Área da câmera oculta até ativação -->
+            <div id="camera-container" style="display: none;">
+                <video id="video" width="320" height="240" autoplay></video>
+                <button type="button" id="capture">Capturar Foto</button>
+                <canvas id="canvas" style="display: none;"></canvas>
+                <input type="hidden" name="captured_image" id="captured-image">
+                <p id="capture-message" style="color: green; display: none;">Foto capturada com sucesso!</p>
+                <button type="button" id="cancel-webcam">Cancelar Webcam</button>
+            </div>
+
+            <button type="submit">Adicionar</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('start-camera').addEventListener('click', function() {
+            let cameraContainer = document.getElementById('camera-container');
+            let imageUploadContainer = document.getElementById('image-upload-container');
+            let startCameraButton = document.getElementById('start-camera');
+
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    document.getElementById('video').srcObject = stream;
+                    cameraContainer.style.display = 'block';
+                    imageUploadContainer.style.display = 'none'; // Esconde o upload de imagem
+                    startCameraButton.style.display = 'none'; // Esconde o botão de ativar câmera
+                })
+                .catch(function(error) {
+                    console.error('Erro ao acessar a webcam:', error);
+                });
+        });
+
+        document.getElementById('capture').addEventListener('click', function() {
+            let canvas = document.getElementById('canvas');
+            let video = document.getElementById('video');
+            let capturedImageInput = document.getElementById('captured-image');
+            let captureMessage = document.getElementById('capture-message');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            let imageData = canvas.toDataURL('image/png');
+            capturedImageInput.value = imageData; // Salva a imagem no campo oculto
+
+            captureMessage.style.display = 'block'; // Exibe mensagem de sucesso
+        });
+
+        document.getElementById('cancel-webcam').addEventListener('click', function() {
+            let cameraContainer = document.getElementById('camera-container');
+            let imageUploadContainer = document.getElementById('image-upload-container');
+            let startCameraButton = document.getElementById('start-camera');
+            let video = document.getElementById('video');
+
+            // Para a transmissão da câmera
+            let stream = video.srcObject;
+            let tracks = stream.getTracks();
+            tracks.forEach(track => track.stop());
+
+            video.srcObject = null;
+            cameraContainer.style.display = 'none';
+            imageUploadContainer.style.display = 'block'; // Reexibe o campo de upload de imagem
+            startCameraButton.style.display = 'block'; // Reexibe o botão de ativar câmera
+        });
+    </script>
+</body>
+</html>
