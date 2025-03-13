@@ -4,9 +4,13 @@ import os
 import time
 from deepface import DeepFace
 from datetime import datetime
-from ..firebase.history_manager import HistoryManager
 import json
 import csv
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
+from src.firebase.history_manager import HistoryManager
 
 # Path to the "users" folder
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -71,6 +75,7 @@ class cam_face_recognition:
         self.y_start = self.frame_height // 2 - self.square_size // 2
         self.x_end = self.x_start + self.square_size
         self.y_end = self.y_start + self.square_size
+        self.history_manager = HistoryManager()
 
         self.csv_file = csv_file
 
@@ -134,8 +139,7 @@ class cam_face_recognition:
         }
 
         # Adding history to the database
-        history_manager = HistoryManager()
-        history_manager.add_history(person.id, history_data)
+        self.history_manager.add_history(person.id, history_data)
 
         with open(self.csv_file, mode="a", newline="") as file:
             writer = csv.writer(file)
