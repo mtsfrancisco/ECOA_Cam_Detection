@@ -14,10 +14,10 @@ class UserImageManager:
         self.firebase_manager = FirebaseManager()
 
     def generate_numeric_id(self):
-        unique_str = str(time.time()).encode()  # Usa timestamp para garantir unicidade
-        hash_value = hashlib.sha1(unique_str).hexdigest()  # Gera um hash hexadecimal
-        numeric_id = int(hash_value, 16)  # Converte o hash hexadecimal para um número inteiro
-        return str(numeric_id)[:10]  # Retorna apenas os primeiros 10 dígitos
+        unique_str = str(time.time()).encode() 
+        hash_value = hashlib.sha1(unique_str).hexdigest()  
+        numeric_id = int(hash_value, 16) 
+        return str(numeric_id)[:10]  
 
 
 
@@ -36,47 +36,48 @@ class UserImageManager:
             str: Message indicating that the user was created or updated successfully.
         """
 
-        # Diretório do usuário e caminho do JSON
+        # User folder and JSON path
         user_folder = os.path.join(self.users_dir, user_id)
         user_data_path = os.path.join(user_folder, f"{user_id}.json")
 
-        # Verifica se já existe um arquivo JSON e carrega os dados antigos
+        # Verify if there is already a JSON file and load the old data
         previous_data = {}
         if os.path.exists(user_data_path):
             with open(user_data_path, 'r') as json_file:
                 try:
                     previous_data = json.load(json_file)
                 except json.JSONDecodeError:
-                    pass  # Se houver erro no JSON, assume-se que está vazio/corrompido
+                    pass  # If there is an error in the JSON, it is assumed to be empty/corrupted
+   
 
-        # Mantém a imagem antiga se nenhuma nova for fornecida
+        # Keep the old image if no new one is provided
         if 'image_64' in previous_data and 'image_64' not in user_data:
             user_data['image_64'] = previous_data['image_64']
 
-        # Verifica se há uma nova imagem a ser salva
+        # Verify if there is an image in the temporary folder
         image_filename = self._find_first_image(self.temp_dir)
         if image_filename:
             original_image_path = os.path.join(self.temp_dir, image_filename)
             new_image_name = f"{user_data['name']}.jpg"
             new_image_path = os.path.join(self.temp_dir, new_image_name)
 
-            # Renomeia a imagem
+            # Rename the image
             os.rename(original_image_path, new_image_path)
 
-            # Cria diretório se não existir
+            # Create directory if it does not exist
             os.makedirs(user_folder, exist_ok=True)
 
             final_image_path = os.path.join(user_folder, new_image_name)
             os.rename(new_image_path, final_image_path)
 
-            # Converte a nova imagem para base64 e sobrescreve o valor antigo
+            # Convert the new image to base64 and overwrite the old value
             base64_image = ImageConversions.image_to_base64(final_image_path)
             user_data['image_64'] = base64_image
 
         elif require_image and 'image_64' not in user_data:
             raise FileNotFoundError(f"No image found in folder: {self.temp_dir}")
 
-        # Salva os dados do usuário como JSON
+        # Save user data as JSON
         os.makedirs(user_folder, exist_ok=True)
         with open(user_data_path, 'w') as json_file:
             json.dump(user_data, json_file, indent=4)
@@ -182,22 +183,21 @@ class UserImageManager:
 
             # Atualiza localmente os dados do usuário, sem exigir imagem obrigatoriamente
             self.add_user_local(user_data, user_id, require_image=False)
-
-            # Diretório do usuário
+            
             user_folder = os.path.join(self.users_dir, user_id)
             image_filename = None
 
             if os.path.exists(user_folder):
-                # Tenta encontrar a imagem
+                # Find the image
                 image_filename = self._find_first_image(user_folder)
 
-            # Se encontrou a imagem, converte e adiciona ao dicionário
+            # If an image was found, convert it to base64 and add it to the dictionary
             if image_filename:
                 image_path = os.path.join(user_folder, image_filename)
                 base64_image = ImageConversions.image_to_base64(image_path)
                 user_data['image_64'] = base64_image
 
-            # Atualiza os dados no Firebase (com ou sem imagem)
+            # Update the user's data in Firebase (with or without an image)
             self.firebase_manager.update_user(user_id, user_data)
             return user_id
 
