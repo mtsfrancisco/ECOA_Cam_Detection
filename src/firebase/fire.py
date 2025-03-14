@@ -21,26 +21,71 @@ class FirebaseManager:
             })
 
     def add_user(self, user_id, user_data):
+        '''
+        Adds a new user to the Firebase database.
+        
+        Parameters:
+        user_id (str): The ID of the user.
+        user_data (dict): A dictionary containing user data.
+        '''
         ref = db.reference(f'users/{user_id}')
         ref.set(user_data)
 
     def get_user(self, user_id):
+        '''
+        Retrieves a user from the Firebase database.
+        
+        Parameters:
+        user_id (str): The ID of the user.
+        
+        Returns:
+        dict: A dictionary containing user data.
+        '''
         ref = db.reference(f'users/{user_id}')
         return ref.get()
 
     def update_user(self, user_id, user_data):
+        '''
+        Updates an existing user in the Firebase database.
+        
+        Parameters:
+        user_id (str): The ID of the user.
+        user_data (dict): A dictionary containing updated user data.
+        '''
         ref = db.reference(f'users/{user_id}')
         ref.update(user_data)
 
     def delete_user(self, user_id):
+        '''
+        Deletes a user from the Firebase database.
+        
+        Parameters:
+        user_id (str): The ID of the user.
+        '''
         ref = db.reference(f'users/{user_id}')
         ref.delete()
 
     def get_all_users(self):
+        '''
+        Retrieves all users from the Firebase database.
+        
+        Returns:
+        dict: A dictionary containing all users data.
+        '''
         ref = db.reference('users')
         return ref.get()
     
     def add_history(self, user_id, history_data):
+        '''
+        Adds a history entry for a user in the Firebase database.
+        
+        Parameters:
+        user_id (str): The ID of the user.
+        history_data (dict): A dictionary containing history data.
+        
+        Returns:
+        bool: True if the operation was successful, False otherwise.
+        '''
         try:
             ref = db.reference(f'history/{user_id}')
             new_history_ref = ref.push()
@@ -51,6 +96,15 @@ class FirebaseManager:
             return False
 
     def get_user_history(self, user_id):
+        '''
+        Retrieves the history of a user from the Firebase database.
+        
+        Parameters:
+        user_id (str): The ID of the user.
+        
+        Returns:
+        dict: A dictionary containing the user's history data, or None if an error occurred.
+        '''
         try:
             ref = db.reference(f'history/{user_id}')
             history = ref.get()
@@ -60,6 +114,15 @@ class FirebaseManager:
             return None
 
     def delete_user_history(self, user_id):
+        '''
+        Deletes the history of a user from the Firebase database.
+        
+        Parameters:
+        user_id (str): The ID of the user.
+        
+        Returns:
+        bool: True if the operation was successful, False otherwise.
+        '''
         try:
             ref = db.reference(f'history/{user_id}')
             ref.delete()
