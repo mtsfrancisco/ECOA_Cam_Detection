@@ -41,6 +41,10 @@ __pycache__/
 build/
 dist/
 
+# Ignore local users to keep user info safe
+users/*
+!users/
+
 # Ignore recognized_people.csv
 recognized_people.csv
 src/recognized_people.csv

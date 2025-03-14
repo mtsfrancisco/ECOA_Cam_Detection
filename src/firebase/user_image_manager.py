@@ -230,10 +230,15 @@ class UserImageManager:
         Returns:
             list: List of user IDs whose images are missing in the local storage.
         """
+
+        print("Initiating recovery of users from Firebase...")
+
         # Delete the existing users folder
         if os.path.exists(self.users_dir):
             shutil.rmtree(self.users_dir)
         
+        print(os.getcwd())
+
         # Create a new users folder
         os.makedirs(self.users_dir, exist_ok=True)
 
