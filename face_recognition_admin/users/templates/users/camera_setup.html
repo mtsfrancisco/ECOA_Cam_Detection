@@ -7,6 +7,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Camera Setup</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        /* Center the buttons below the webcam area */
+        #camera-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #camera-container button {
+            margin-top: 10px;
+        }
+        #image-upload-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="header">
@@ -15,14 +31,24 @@
         </a>
     </div>
     <!-- Add camera container and video element -->
-    <div id="camera-container" style="display: none; border: 2px solid blue; padding: 10px;">
-        <video id="video" autoplay></video>
-        <button id="capture">Capture</button>
-        <button id="cancel-webcam">Cancel</button>
+    <div id="camera-container" style="display: none; border: 2px solid blue; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%;">
+        <!-- Video element -->
+        <video id="video" autoplay style="width: 320px; height: 240px; margin-bottom: 10px;"></video>
+        
+        <!-- Flexbox container for buttons (horizontal layout) -->
+        <div style="display: flex; justify-content: center; width: 100%; max-width: 320px;">
+            <button id="capture" style="margin-right: 5px;">Capture</button>
+            <button id="cancel-webcam" style="margin-left: 5px;">Cancel</button>
+        </div>
+        
+        <!-- Hidden canvas and captured image input -->
         <canvas id="canvas" style="display: none;"></canvas>
         <input type="hidden" id="captured-image" name="captured-image">
+        
+        <!-- Success message -->
         <p id="capture-message" style="display: none;">Image captured successfully!</p>
     </div>
+    
     <div id="image-upload-container">
         <button id="start-camera">Activate Camera</button>
     </div>
