@@ -14,7 +14,18 @@
             Face Recognition Admin
         </a>
     </div>
-
+    <!-- Add camera container and video element -->
+    <div id="camera-container" style="display: none; border: 2px solid blue; padding: 10px;">
+        <video id="video" autoplay></video>
+        <button id="capture">Capturar</button>
+        <button id="cancel-webcam">Cancelar</button>
+        <canvas id="canvas" style="display: none;"></canvas>
+        <input type="hidden" id="captured-image" name="captured-image">
+        <p id="capture-message" style="display: none;">Imagem capturada com sucesso!</p>
+    </div>
+    <div id="image-upload-container">
+        <button id="start-camera">Ativar Câmera</button>
+    </div>
     <script>
         document.getElementById('start-camera').addEventListener('click', function() {
             let cameraContainer = document.getElementById('camera-container');
