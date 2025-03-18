@@ -1,11 +1,11 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adicionar Usuário</title>
+    <title>Camera Setup</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
@@ -17,17 +17,17 @@
     <!-- Add camera container and video element -->
     <div id="camera-container" style="display: none; border: 2px solid blue; padding: 10px;">
         <video id="video" autoplay></video>
-        <button id="capture">Capturar</button>
-        <button id="cancel-webcam">Cancelar</button>
+        <button id="capture">Capture</button>
+        <button id="cancel-webcam">Cancel</button>
         <canvas id="canvas" style="display: none;"></canvas>
         <input type="hidden" id="captured-image" name="captured-image">
-        <p id="capture-message" style="display: none;">Imagem capturada com sucesso!</p>
+        <p id="capture-message" style="display: none;">Image captured successfully!</p>
     </div>
     <div id="image-upload-container">
-        <button id="start-camera">Ativar Câmera</button>
+        <button id="start-camera">Activate Camera</button>
     </div>
     <script>
-        // Event listener for the "Ativar Câmera" button
+        // Event listener for the "Activate Camera" button
         document.getElementById('start-camera').addEventListener('click', function() {
             let cameraContainer = document.getElementById('camera-container');
             let imageUploadContainer = document.getElementById('image-upload-container');
@@ -43,11 +43,11 @@
                     startCameraButton.style.display = 'none'; // Hide the start camera button
                 })
                 .catch(function(error) {
-                    console.error('Erro ao acessar a webcam:', error);
+                    console.error('Error accessing the webcam:', error);
                 });
         });
 
-        // Event listener for the "Capturar" button
+        // Event listener for the "Capture" button
         document.getElementById('capture').addEventListener('click', function() {
             let canvas = document.getElementById('canvas');
             let video = document.getElementById('video');
@@ -59,15 +59,9 @@
             canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            // Save the captured image in a hidden input field
-            let imageData = canvas.toDataURL('image/png');
-            capturedImageInput.value = imageData;
-
-            // Display success message
-            captureMessage.style.display = 'block';
         });
 
-        // Event listener for the "Cancelar" button
+        // Event listener for the "Cancel" button
         document.getElementById('cancel-webcam').addEventListener('click', function() {
             let cameraContainer = document.getElementById('camera-container');
             let imageUploadContainer = document.getElementById('image-upload-container');
