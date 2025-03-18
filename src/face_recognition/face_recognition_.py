@@ -17,13 +17,15 @@ CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 USERS_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "..", "local_database", "users")
 
 class Person:
-    def __init__(self, name, encoding, image, id):
+    """Class representing a person with their name, face encoding, image, and user ID."""
+    def __init__(self, name, encoding, image, user_id):
         self.name = name
         self.encoding = encoding
         self.image = image
-        self.id = id
+        self.user_id = user_id
 
 class known_people_loader:
+    """Class responsible for loading known people from the local database."""
     def __init__(self, users_directory):
         self.users_directory = users_directory
         self.persons = []
@@ -58,11 +60,12 @@ class known_people_loader:
                                 name=f"{person_name} {person_last_name}",
                                 encoding=encodings[0],
                                 image=cv2.imread(file_path),
-                                id = person_data.get("id", None)
+                                user_id = person_data.get("user_id")
                             ))
                             self.known_face_encodings.append(encodings[0])
 
 class cam_face_recognition:
+    """Class responsible for recognizing faces using the webcam."""
     def __init__(self, known_persons, wait_time=5, csv_file="src/face_recognition/recognized_people.csv"):
         self.known_persons = known_persons
         self.wait_time = wait_time
@@ -79,19 +82,18 @@ class cam_face_recognition:
 
         self.csv_file = csv_file
 
-        # Se o arquivo CSV não existir, cria com cabeçalhos
+        # If the CSV file does not exist, create it with headers
         if not os.path.exists(self.csv_file):
             with open(self.csv_file, mode="w", newline="") as file:
                 writer = csv.writer(file)
-                writer.writerow(["Timestamp", "Name"])  # Cabeçalhos das colunas
+                writer.writerow(["Timestamp", "Name"])  # Column headers
 
     def draw_square(self, frame):
         """Draws a square in the middle of the screen."""
         cv2.rectangle(frame, (self.x_start, self.y_start), (self.x_end, self.y_end), (0, 255, 0), 2)
 
     def analyze_face(self, roi):
-        """Analisa a face na região de interesse (ROI) usando DeepFace."""
-        """"Analyze the face in the region of interest (ROI) using DeepFace."""
+        """Analyze the face in the region of interest (ROI) using DeepFace."""
         temp_roi_path = "temp_roi.jpg"
         cv2.imwrite(temp_roi_path, roi)
         try:
@@ -131,15 +133,16 @@ class cam_face_recognition:
         # Formatting data for json type
         date, time = timestamp.split(" ")
         history_data = {
-            "id": person.id,
+            "user_id": person.user_id,
             "name": person.name,
             "date": date,
             "time": time,
             "status": "Feature in developement"
         }
 
+        print("\n Found user_id " + person.user_id + "\n")
         # Adding history to the database
-        self.history_manager.add_history(person.id, history_data)
+        self.history_manager.add_history(person.user_id, history_data)
 
         with open(self.csv_file, mode="a", newline="") as file:
             writer = csv.writer(file)
@@ -195,6 +198,7 @@ class cam_face_recognition:
 
 
 def main():
+    """Main function to initialize and run the face recognition system."""
     known_persons = known_people_loader(USERS_DIRECTORY)
     face_recognizer = cam_face_recognition(known_persons)
     face_recognizer.run()

@@ -14,16 +14,20 @@ class UserImageManager:
         self.firebase_manager = FirebaseManager()
 
     def generate_numeric_id(self):
+        """
+        Generate a unique numeric ID based on the current time.
+        
+        Returns:
+            str: A unique numeric ID.
+        """
         unique_str = str(time.time()).encode() 
         hash_value = hashlib.sha1(unique_str).hexdigest()  
         numeric_id = int(hash_value, 16) 
         return str(numeric_id)[:10]  
 
-
-
     def add_user_local(self, user_data, user_id, require_image=True):
         """
-        Add a user to Firebase with their image stored locally.
+        Add a user to local storage with their image stored locally.
         
         Used when a new user is being made or updated.
         
@@ -33,7 +37,7 @@ class UserImageManager:
             require_image (bool, optional): Whether an image is required. Default is True.
 
         Returns:
-            str: Message indicating that the user was created or updated successfully.
+            str: The user ID.
         """
 
         # User folder and JSON path
@@ -84,9 +88,6 @@ class UserImageManager:
 
         return user_id
 
-
-
-    
     def get_all_users(self):
         """
         Get all users from Firebase.
@@ -96,22 +97,19 @@ class UserImageManager:
         """
         return self.firebase_manager.get_all_users()
 
-
     def create_user(self, name, last_name, gender, user_id=None):
         """
-        Add a user to Firebase and local with their image converted to Base64.
-        -> There has to be an image of the user being made in the temp_user folder!!!
+        Add a user to Firebase and local storage with their image converted to Base64.
+        There must be an image of the user in the temp_user folder.
 
         Args:
-            user_id (str): The user ID.
             name (str): The user's name.
             last_name (str): The user's last name.
-            gender (str):
-            user_id (str, optional): The user ID.
+            gender (str): The user's gender.
+            user_id (str, optional): The user ID. If not provided, a new ID will be generated.
         
         Returns:
-            str: Message indicating that the user was created successfully.
-            -> Output of file is at users folder
+            str: The user ID.
         """
         
         # Creating 6 digit id
@@ -149,19 +147,18 @@ class UserImageManager:
         else:
             raise FileNotFoundError(f"No image found in temporary folder: {user_folder}")
 
-
     def update_user_data(self, name, last_name, gender, user_id):
         """
-        Update a user's information and/or image in Firebase.
+        Update a user's information and/or image in Firebase and local storage.
 
         Args:
+            name (str): The user's new name.
+            last_name (str): The user's new last name.
+            gender (str): The user's new gender.
             user_id (str): The user ID.
-            name (str, optional): The user's new name.
-            last_name (str, optional): The user's new last name.
-            gender (str, optional): The user's new gender.
-
+        
         Returns:
-            str: Message indicating that the user was updated successfully.
+            str: The user ID.
         """
 
         user_data = {
@@ -205,9 +202,6 @@ class UserImageManager:
             print(f"An error occurred while updating the user: {e}")
             raise
 
-
-
-
     def delete_user(self, user_id):
         """
         Delete a user from Firebase and local storage.
@@ -231,15 +225,20 @@ class UserImageManager:
 
     def recover_users(self):
         """
-        Check whether all faces stored in Firebase are present in the faces folder.
+        Recover all users from Firebase and ensure they are present in local storage.
         
         Returns:
-            list: List of user IDs whose images are missing in the faces folder.
+            list: List of user IDs whose images are missing in the local storage.
         """
+
+        print("Initiating recovery of users from Firebase...")
+
         # Delete the existing users folder
         if os.path.exists(self.users_dir):
             shutil.rmtree(self.users_dir)
         
+        print(os.getcwd())
+
         # Create a new users folder
         os.makedirs(self.users_dir, exist_ok=True)
 

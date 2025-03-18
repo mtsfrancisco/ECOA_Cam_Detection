@@ -64,3 +64,4 @@ def recover_users():
 #print(delete_user())
 manager = UserImageManager()
 print(manager.get_all_users())
+print(manager.recover_users())

@@ -62,6 +62,9 @@ def add_user(request):
         form = UserForm()
     return render(request, 'users/add_user.html', {'form': form})
 
+# View to setup the camera
+def camera_setup(request):
+    return render(request, 'users/camera_setup.html')
 
 # View para mostrar a página de sucesso
 def success_view(request):

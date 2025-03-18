@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import add_user, success_view, index, list_users, edit_user, delete_user
+from .views import add_user, success_view, index, list_users, edit_user, delete_user, camera_setup
 
 urlpatterns = [
     path('', index, name='index'),
@@ -8,4 +8,5 @@ urlpatterns = [
     path('list/', list_users, name='list_users'),
     path('edit_user/<str:user_id>/', edit_user, name='edit_user'),
     path('delete_user/<str:user_id>/', delete_user, name='delete_user'),
+    path('camera_setup/', camera_setup, name='camera_setup'),
 ]
