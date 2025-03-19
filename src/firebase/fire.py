@@ -112,6 +112,21 @@ class FirebaseManager:
         except Exception as e:
             print(f"An error occurred while retrieving history: {e}")
             return None
+        
+    def get_all_history(self):
+        '''
+        Retrieves all history entries from the Firebase database.
+        
+        Returns:
+        dict: A dictionary containing all history entries, or None if an error occurred.
+        '''
+        try:
+            ref = db.reference('history')
+            history = ref.get()
+            return history
+        except Exception as e:
+            print(f"An error occurred while retrieving history: {e}")
+            return
 
     def delete_user_history(self, user_id):
         '''

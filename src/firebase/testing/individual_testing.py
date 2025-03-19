@@ -4,6 +4,7 @@ import sys
 # Add the src directory to the PYTHONPATH
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../..'))
 from src.firebase.user_image_manager import UserImageManager
+from src.firebase.history_manager import HistoryManager
 
 def add_user():
     """
@@ -59,9 +60,18 @@ def recover_users():
     manager = UserImageManager()
     return manager.recover_users()
 
+def get_all_history():
+    """
+    Get all history from Firebase.
+
+    Returns:
+        dict: All history in the database.
+    """
+
+    manager = HistoryManager()
+    return manager.get_all_history()
+
 #print(add_user())
 #print(update_user())
 #print(delete_user())
-manager = UserImageManager()
-print(manager.get_all_users())
-print(manager.recover_users())
+print(get_all_history())

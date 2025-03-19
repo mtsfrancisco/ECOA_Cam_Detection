@@ -11,6 +11,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from src.firebase.history_manager import HistoryManager
+from src.firebase.user_image_manager import UserImageManager
 
 # Path to the "users" folder
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -111,7 +112,7 @@ class cam_face_recognition:
         """Recognizes the face in the region of interest (ROI) using face_recognition."""
         if face_encodings:
             face_encoding = face_encodings[0]
-            matches = face_recognition.compare_faces(self.known_persons.known_face_encodings, face_encoding, tolerance=0.6)
+            matches = face_recognition.compare_faces(self.known_persons.known_face_encodings, face_encoding, tolerance=0.5)
             face_distances = face_recognition.face_distance(self.known_persons.known_face_encodings, face_encoding)
             print(f"Distâncias: {face_distances}")
 
@@ -204,6 +205,8 @@ def main():
     face_recognizer.run()
 
 if __name__ == "__main__":
+    #UserImageManager = UserImageManager()
+    #UserImageManager.recover_users()
     img_path = os.path.join(CURRENT_DIRECTORY, "Matheus.jpg")
     objs = DeepFace.analyze(
     img_path = img_path, 

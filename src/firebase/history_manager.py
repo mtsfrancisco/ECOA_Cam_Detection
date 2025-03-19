@@ -46,6 +46,19 @@ class HistoryManager:
             return history
         else:
             return "Failed to retrieve history"
+        
+    def get_all_history(self):
+        '''
+        Get all history from Firebase.
+
+        Returns:
+            dict: All history, or a message indicating failure.
+        '''
+        history = self.firebase_manager.get_all_history()
+        if history is not None:
+            return history
+        else:
+            return "Failed to retrieve history"
 
     def delete_user_history(self, user_id):
         '''
