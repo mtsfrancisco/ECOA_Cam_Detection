@@ -19,6 +19,7 @@ USERS_IMG_DIR = os.path.join(CURRENT_DIR,'..' ,'static', 'users_imgage')
 
 # Agora pode importar o UserImageManager
 from firebase.user_image_manager import UserImageManager
+from firebase.history_manager import HistoryManager
 
 class UserForm(forms.Form):
     name = forms.CharField(label='Nome', max_length=100)
@@ -29,8 +30,8 @@ class UserForm(forms.Form):
 # Caminho da pasta temp_user
 temp_user_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..','src','local_database','temp_user'))
 
-# Criando o usuário no Firebase
 manager = UserImageManager()
+history_manager = HistoryManager()
 
 # View para processar o formulário
 def add_user(request):
@@ -148,5 +149,25 @@ def edit_user(request, user_id):
         })
 
     return render(request, 'users/edit_user.html', {'form': form, 'user_id': user_id})
+
+def list_history(request):
+    history_data = history_manager.get_all_history()
+
+    # Convertendo o dicionário aninhado em uma lista de eventos
+    history_list = []
+    for user_id, user_histories in history_data.items():
+        for history_id, history in user_histories.items():
+            history_list.append({
+                'user_id': history.get('user_id', ''),
+                'name': history.get('name', ''),
+                'date': history.get('date', ''),
+                'time': history.get('time', ''),
+                'status': history.get('status', '')
+            })
+
+    # Ordenando os eventos por data e hora
+    history_list.sort(key=lambda x: (x['date'], x['time']), reverse=True)
+
+    return render(request, 'users/history.html', {'history': history_list})
 
 

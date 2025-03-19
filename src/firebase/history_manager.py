@@ -2,7 +2,7 @@ import os
 import shutil
 import random
 import json
-from src.firebase.fire import FirebaseManager
+from .fire import FirebaseManager
 
 class HistoryManager:
     def __init__(self):
