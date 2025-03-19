@@ -173,3 +173,39 @@ button:hover {
     padding: 10px;
     display: none;
 }
+
+/* Estilos para a página de histórico */
+.user-container {
+    max-width: 900px;
+    margin: 50px auto;
+    text-align: center;
+}
+
+.user-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.user-container th, .user-container td {
+    padding: 12px;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+
+.user-container th {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
+/* Ajuste para melhorar a exibição das colunas */
+.user-container tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.user-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 20px;
+}
