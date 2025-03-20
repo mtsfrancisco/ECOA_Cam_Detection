@@ -112,7 +112,7 @@ class cam_face_recognition:
         """Recognizes the face in the region of interest (ROI) using face_recognition."""
         if face_encodings:
             face_encoding = face_encodings[0]
-            matches = face_recognition.compare_faces(self.known_persons.known_face_encodings, face_encoding, tolerance=0.5)
+            matches = face_recognition.compare_faces(self.known_persons.known_face_encodings, face_encoding, tolerance=0.4)
             face_distances = face_recognition.face_distance(self.known_persons.known_face_encodings, face_encoding)
             print(f"Distâncias: {face_distances}")
 
