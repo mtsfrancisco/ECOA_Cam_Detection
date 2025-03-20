@@ -67,7 +67,7 @@ class known_people_loader:
 
 class cam_face_recognition:
     """Class responsible for recognizing faces using the webcam."""
-    def __init__(self, known_persons, wait_time=5, csv_file="src/face_recognition/recognized_people.csv"):
+    def __init__(self, known_persons, wait_time=3, csv_file="src/face_recognition/recognized_people.csv"):
         self.known_persons = known_persons
         self.wait_time = wait_time
         self.last_check_time = time.time() - wait_time
