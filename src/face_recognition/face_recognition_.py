@@ -187,6 +187,7 @@ class cam_face_recognition:
                         cv2.imshow("Webcam", frame)
                         cv2.waitKey(4000)
                     else:
+                        # Uses DeepFace library (Consider removing if too slow)
                         analysis = self.analyze_face(roi)
                         self.display_unknown_person_info(frame, analysis)
                         cv2.imshow("Webcam", frame)

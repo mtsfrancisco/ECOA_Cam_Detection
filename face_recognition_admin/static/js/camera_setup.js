@@ -4,6 +4,18 @@ function initVideoStreaming() {
     video.play();
 }
 
+function checkWebcamPermissions() {
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream) {
+            // Webcam access granted
+            initVideoStreaming();
+        })
+        .catch(function(error) {
+            // Webcam access denied
+            alert("Please allow webcam access to use this feature.");
+        });
+}
+
 // Initialize video streaming on page load
 window.addEventListener('DOMContentLoaded', () => {
     let cameraContainer = document.getElementById('camera-container');
@@ -14,5 +26,5 @@ window.addEventListener('DOMContentLoaded', () => {
     if (imageUploadContainer) imageUploadContainer.style.display = 'none'; // Hide image upload
     if (startCameraButton) startCameraButton.style.display = 'none'; // Hide start camera button
 
-    initVideoStreaming(); // Initialize video streaming
+    checkWebcamPermissions(); // Check webcam permissions and initialize video streaming
 });

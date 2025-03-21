@@ -33,7 +33,12 @@
     <!-- Add camera container and video element -->
     <div id="camera-container" style="border: 2px solid blue; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%;">
         <!-- Video element -->
-        <video id="video" autoplay style="width: 640px; height: 480px; margin-bottom: 10px;"></video>
+        <video id="video" autoplay style="width: 640px; height: 480px; margin-bottom: 10px;">
+            <source src="/users/video_feed/" type="video/mp4">
+            <source src="/users/video_feed/" type="video/webm">
+            <source src="/users/video_feed/" type="video/ogg">
+            Your browser does not support the video tag.
+        </video>
         
         <!-- Hidden canvas and captured image input -->
         <canvas id="canvas" style="display: none;"></canvas>
