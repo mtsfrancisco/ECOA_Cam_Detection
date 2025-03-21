@@ -179,6 +179,9 @@ def list_history(request):
     return render(request, 'users/history.html', {'history': history_list})
 
 def generate_video_feed():
+    CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+    USERS_DIRECTORY = os.path.abspath(os.path.join(CURRENT_DIRECTORY, '..', '..', 'src', 'local_database', 'users'))
+
     known_persons = known_people_loader(USERS_DIRECTORY)
     face_recognizer = cam_face_recognition(known_persons)
     video_capture = cv2.VideoCapture(0)

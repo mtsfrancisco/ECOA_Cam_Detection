@@ -83,6 +83,11 @@ class cam_face_recognition:
 
         self.csv_file = csv_file
 
+        # Ensure the directory structure exists
+        csv_dir = os.path.dirname(self.csv_file)
+        if not os.path.exists(csv_dir):
+            os.makedirs(csv_dir)
+
         # If the CSV file does not exist, create it with headers
         if not os.path.exists(self.csv_file):
             with open(self.csv_file, mode="w", newline="") as file:
