@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import add_user, success_view, index, list_users, edit_user, delete_user, camera_setup, list_history
+from .views import add_user, success_view, index, list_users, edit_user, delete_user, camera_setup, list_history, video_feed
 
 urlpatterns = [
     path('', index, name='index'),
@@ -10,4 +10,5 @@ urlpatterns = [
     path('delete_user/<str:user_id>/', delete_user, name='delete_user'),
     path('camera_setup/', camera_setup, name='camera_setup'),
     path('list_history/', list_history, name='list_history'),
+    path('video_feed/', video_feed, name='video_feed'),
 ]

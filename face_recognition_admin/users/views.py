@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, StreamingHttpResponse
 import base64
 import uuid 
 from django.shortcuts import render, redirect
@@ -10,6 +10,9 @@ from django.views.decorators.csrf import csrf_exempt
 import base64
 from io import BytesIO
 from PIL import Image
+import cv2
+import time
+import face_recognition
 
 # Add the path to the src folder to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'src')))
@@ -17,9 +20,14 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 CURRENT_DIR = os.path.dirname(__file__)
 USERS_IMG_DIR = os.path.join(CURRENT_DIR,'..' ,'static', 'users_imgage')
 
-# Agora pode importar o UserImageManager
+# Import UserImageManager and HistoryManager
 from firebase.user_image_manager import UserImageManager
 from firebase.history_manager import HistoryManager
+
+# Correctly locate the face_recognition_.py file
+face_recognition_module_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'face_recognition'))
+sys.path.append(face_recognition_module_path)
+from face_recognition_ import known_people_loader, cam_face_recognition
 
 class UserForm(forms.Form):
     name = forms.CharField(label='Nome', max_length=100)
@@ -169,5 +177,44 @@ def list_history(request):
     history_list.sort(key=lambda x: (x['date'], x['time']), reverse=True)
 
     return render(request, 'users/history.html', {'history': history_list})
+
+def generate_video_feed():
+    known_persons = known_people_loader(USERS_DIRECTORY)
+    face_recognizer = cam_face_recognition(known_persons)
+    video_capture = cv2.VideoCapture(0)
+
+    while True:
+        ret, frame = video_capture.read()
+        if not ret:
+            break
+
+        # Process the frame with face recognition
+        face_recognizer.draw_square(frame)
+        if time.time() - face_recognizer.last_check_time >= face_recognizer.wait_time:
+            roi = frame[face_recognizer.y_start:face_recognizer.y_end, face_recognizer.x_start:face_recognizer.x_end]
+            rgb_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2RGB)
+            face_encodings = face_recognition.face_encodings(rgb_roi)
+            if face_encodings:
+                person = face_recognizer.recognize_face(face_encodings)
+                if person:
+                    face_recognizer.display_person_info(frame, person)
+                else:
+                    analysis = face_recognizer.analyze_face(roi)
+                    face_recognizer.display_unknown_person_info(frame, analysis)
+            face_recognizer.last_check_time = time.time()
+
+        ret, jpeg = cv2.imencode('.jpg', frame)
+        if not ret:
+            continue
+
+        frame = jpeg.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+    video_capture.release()
+
+def video_feed(request):
+    return StreamingHttpResponse(generate_video_feed(),
+                                 content_type='multipart/x-mixed-replace; boundary=frame')
 
 

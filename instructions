@@ -5,4 +5,10 @@ To run in an environment:
       other dependancies
     - For the moment it is only automated for the macbook
 
-"Need to write instructions on how to write actual .exe"
+- When testing the site...
+    - Direct to the face_recognition_admin folder and user...
+        -> python manage.py runserver command in the terminal
+
+- When testing the face_recognition camera...
+    - python src/face_recogntionn/face_recogntion.py
+    - Should take a while to load up but should open 
