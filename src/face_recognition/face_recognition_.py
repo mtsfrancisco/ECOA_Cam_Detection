@@ -16,6 +16,7 @@ from src.firebase.user_image_manager import UserImageManager
 # Path to the "users" folder
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 USERS_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "..", "local_database", "users")
+HISTORY_CSV_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "recognized_people.csv")
 
 class Person:
     """Class representing a person with their name, face encoding, image, and user ID."""
@@ -67,7 +68,7 @@ class known_people_loader:
 
 class cam_face_recognition:
     """Class responsible for recognizing faces using the webcam."""
-    def __init__(self, known_persons, wait_time=3, csv_file="src/face_recognition/recognized_people.csv"):
+    def __init__(self, known_persons, wait_time=3, csv_file=HISTORY_CSV_DIRECTORY):
         self.known_persons = known_persons
         self.wait_time = wait_time
         self.last_check_time = time.time() - wait_time
